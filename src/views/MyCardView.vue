@@ -176,50 +176,83 @@
           <!-- Left Sidebar Navigation -->
           <div class="profile-sidebar">
             <div class="sidebar-section">
-              <div class="public-url-display">
-                <div class="url-header">
-                  <label class="url-label">Public URL</label>
-                  <div class="url-header-actions">
-                    <a :href="`/profiles/${profile.slug}`" target="_blank" class="visit-btn">
-                      <svg class="external-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                      </svg>
-                    </a>
-                    <button v-if="!isEditingSlug" @click="startEditing" class="edit-btn">
-                      <svg class="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                      </svg>
-                    </button>
+              <div class="profile-options">
+                <h3 class="sidebar-title">Card Options</h3>
+
+                <!-- Public URL Section -->
+                <div class="option-group">
+                  <div class="option-header">
+                    <label class="option-label">Public URL</label>
+                    <div class="option-actions">
+                      <button v-if="!isEditingSlug" @click="startEditing" class="edit-btn">
+                        <svg class="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                      </button>
+                      <div v-else class="edit-actions-inline">
+                        <button @click="cancelEditing" class="cancel-btn-inline" :disabled="isUpdatingSlug">
+                          Cancel
+                        </button>
+                        <button @click="saveSlug" class="save-btn-inline" :disabled="isUpdatingSlug">
+                          {{ isUpdatingSlug ? 'Saving...' : 'Save' }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="url-container">
+                    <!-- Display Mode -->
+                    <div v-if="!isEditingSlug" class="url-display">
+                      <a :href="`/profiles/${profile.slug}`" target="_blank" class="url-link">{{ publicProfileUrl }}</a>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <div v-else class="url-edit-mode">
+                      <div class="url-edit-display">
+                        <span class="url-prefix">{{ urlPrefix }}</span><input
+                          v-model="editableSlug"
+                          :disabled="isUpdatingSlug"
+                          class="slug-input-simple"
+                          placeholder="your-slug"
+                          @keydown.enter="saveSlug"
+                          @keydown.escape="cancelEditing"
+                        />
+                      </div>
+                      <div v-if="slugError" class="slug-error">
+                        {{ slugError }}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div class="url-container">
-                  <!-- Display Mode -->
-                  <div v-if="!isEditingSlug" class="url-display">
-                    <div class="url-text">{{ publicProfileUrl }}</div>
+                <!-- Public/Private Toggle -->
+                <div class="option-group">
+                  <div class="option-header">
+                    <label class="option-label">Visibility</label>
                   </div>
-
-                  <!-- Edit Mode -->
-                  <div v-else class="url-edit-mode">
-                    <div class="url-edit-container">
-                      <span class="url-prefix">{{ urlPrefix }}</span>
+                  <div class="visibility-toggle">
+                    <div class="toggle-option" :class="{ active: !profile.public }" @click="setVisibility(false)">
                       <input
-                        v-model="editableSlug"
-                        :disabled="isUpdatingSlug"
-                        class="slug-input"
-                        placeholder="your-slug"
-                        @keydown.enter="saveSlug"
-                        @keydown.escape="cancelEditing"
+                        type="radio"
+                        :checked="!profile.public"
+                        :disabled="isUpdatingVisibility"
+                        class="toggle-radio"
                       />
+                      <span class="toggle-label">Private</span>
                     </div>
-                    <div class="edit-actions">
-                      <button @click="cancelEditing" class="cancel-btn" :disabled="isUpdatingSlug">
-                        Cancel
-                      </button>
-                      <button @click="saveSlug" class="save-btn" :disabled="isUpdatingSlug">
-                        {{ isUpdatingSlug ? 'Saving...' : 'Save' }}
-                      </button>
+                    <div class="toggle-option" :class="{ active: profile.public }" @click="setVisibility(true)">
+                      <input
+                        type="radio"
+                        :checked="profile.public"
+                        :disabled="isUpdatingVisibility"
+                        class="toggle-radio"
+                      />
+                      <span class="toggle-label">Public</span>
                     </div>
+                  </div>
+                  <div class="visibility-description">
+                    <span v-if="profile.public" class="description-text">Your profile is visible to everyone.</span>
+                    <span v-else class="description-text">Only you can see this profile.</span>
                   </div>
                 </div>
               </div>
@@ -413,16 +446,18 @@ const editableSlug = ref('')
 const isUpdatingSlug = ref(false)
 const isEditingSlug = ref(false)
 const originalSlug = ref('')
+const slugError = ref('')
+const isUpdatingVisibility = ref(false)
 
 // Computed property for URL prefix
 const urlPrefix = computed(() => {
-  return `${window.location.origin}/profiles/`
+  return `${window.location.origin}/cards/`
 })
 
 // Computed property for public profile URL
 const publicProfileUrl = computed(() => {
   if (!profile.value?.slug) return ''
-  return `${window.location.origin}/profiles/${profile.value.slug}`
+  return `${window.location.origin}/cards/${profile.value.slug}`
 })
 
 // Mobile detection
@@ -453,12 +488,49 @@ const startEditing = () => {
   isEditingSlug.value = true
   originalSlug.value = profile.value.slug
   editableSlug.value = profile.value.slug
+  slugError.value = '' // Clear any previous errors
 }
 
 // Cancel editing
 const cancelEditing = () => {
   isEditingSlug.value = false
   editableSlug.value = originalSlug.value
+  slugError.value = '' // Clear any errors
+}
+
+// Set profile visibility
+const setVisibility = async (isPublic: boolean) => {
+  if (!profile.value?.slug || profile.value.public === isPublic) return
+
+  const previousValue = profile.value.public
+  profile.value.public = isPublic // Optimistically update UI
+  isUpdatingVisibility.value = true
+
+  try {
+    const response = await makeAuthenticatedRequest(
+      `${import.meta.env.VITE_API_BASE_URL}/api/profiles/${profile.value.slug}/`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ public: isPublic })
+      }
+    )
+
+    if (response.ok) {
+      const updatedProfile = await response.json()
+      profile.value = updatedProfile
+      console.log('Profile visibility updated successfully to:', isPublic ? 'public' : 'private')
+    } else {
+      console.error('Failed to update profile visibility:', response.status, response.statusText)
+      // Revert the change on error
+      profile.value.public = previousValue
+    }
+  } catch (error) {
+    console.error('Network error updating profile visibility:', error)
+    // Revert the change on error
+    profile.value.public = previousValue
+  } finally {
+    isUpdatingVisibility.value = false
+  }
 }
 
 // Save slug
@@ -474,11 +546,11 @@ const saveSlug = async () => {
   // Basic slug validation - only allow alphanumeric characters and hyphens
   const slugRegex = /^[a-zA-Z0-9-]+$/
   if (!slugRegex.test(editableSlug.value)) {
-    console.error('Invalid slug format. Only letters, numbers, and hyphens are allowed.')
-    editableSlug.value = profile.value.slug // Reset to original
+    slugError.value = 'Only letters, numbers, and hyphens are allowed.'
     return
   }
 
+  slugError.value = '' // Clear any previous errors
   isUpdatingSlug.value = true
 
   try {
@@ -495,18 +567,19 @@ const saveSlug = async () => {
       profile.value = updatedProfile
       originalSlug.value = updatedProfile.slug
       isEditingSlug.value = false
+      slugError.value = '' // Clear any errors on success
       console.log('Slug updated successfully')
     } else if (response.status === 400) {
       const errorData = await response.json()
+      slugError.value = 'This URL is already taken. Please try a different one.'
       console.error('Slug update failed - slug may already be in use:', errorData)
-      editableSlug.value = profile.value.slug // Reset to original
     } else {
+      slugError.value = 'Failed to update URL. Please try again.'
       console.error('Failed to update slug:', response.status, response.statusText)
-      editableSlug.value = profile.value.slug // Reset to original
     }
   } catch (error) {
+    slugError.value = 'Network error. Please check your connection and try again.'
     console.error('Network error updating slug:', error)
-    editableSlug.value = profile.value.slug // Reset to original
   } finally {
     isUpdatingSlug.value = false
   }
@@ -1103,28 +1176,128 @@ onMounted(() => {
   border-bottom: 1px solid var(--gray-200);
 }
 
-.public-url-display {
+.profile-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.option-group {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.url-header {
+.option-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.url-label {
+.option-label {
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.025em;
 }
 
-.url-header-actions {
+.option-actions {
   display: flex;
   align-items: center;
   gap: 0.375rem;
+}
+
+.visibility-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toggle-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-option:hover {
+  border-color: var(--primary-300);
+  background: var(--primary-25);
+}
+
+.toggle-option.active {
+  border-color: var(--primary-500);
+  background: var(--primary-50);
+  color: var(--primary-700);
+}
+
+.toggle-radio {
+  margin: 0;
+}
+
+.toggle-label {
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.visibility-description {
+  margin-top: 0.25rem;
+}
+
+.description-text {
+  font-size: 13px;
+  color: var(--gray-600);
+  font-style: italic;
+}
+
+
+.edit-actions-inline {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cancel-btn-inline, .save-btn-inline {
+  height: 1.75rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.cancel-btn-inline {
+  background: transparent;
+  border: 1px solid var(--gray-300);
+  color: var(--gray-700);
+}
+
+.cancel-btn-inline:hover:not(:disabled) {
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+}
+
+.save-btn-inline {
+  background: var(--primary-600);
+  border: 1px solid var(--primary-600);
+  color: white;
+}
+
+.save-btn-inline:hover:not(:disabled) {
+  background: var(--primary-700);
+  border-color: var(--primary-700);
+}
+
+.cancel-btn-inline:disabled, .save-btn-inline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .edit-btn {
@@ -1163,6 +1336,26 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  min-height: 20px;
+  font-weight: 500;
+}
+
+.url-link {
+  flex: 1;
+  font-size: 14px;
+  color: var(--primary-600);
+  word-break: break-all;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-family: inherit;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+}
+
+.url-link:hover {
+  color: var(--primary-700);
+  text-decoration: underline;
 }
 
 .url-text {
@@ -1179,45 +1372,53 @@ onMounted(() => {
   gap: 0.75rem;
 }
 
-.url-edit-container {
+.url-edit-display {
   display: flex;
-  align-items: stretch;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: white;
-  transition: border-color 0.2s ease;
-}
-
-.url-edit-container:focus-within {
-  border-color: var(--primary-500);
-  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+  align-items: baseline;
+  font-size: 14px;
+  line-height: 1.4;
+  font-family: inherit;
+  min-height: 20px;
 }
 
 .url-prefix {
-  padding: 0.75rem;
-  background: var(--gray-50);
+  color: var(--gray-700);
   font-size: 14px;
-  color: var(--gray-600);
-  border-right: 1px solid var(--gray-200);
-  white-space: nowrap;
+  line-height: 1.4;
+  font-family: inherit;
+  font-weight: 500;
+  margin-right: 4px;
 }
 
-.slug-input {
-  flex: 1;
-  padding: 0.75rem;
+.slug-input-simple {
   border: none;
   outline: none;
   font-size: 14px;
   color: var(--gray-800);
-  background: white;
+  background: transparent;
   min-width: 0;
+  border-bottom: 2px solid var(--primary-500);
+  padding: 0;
+  margin: 0;
+  line-height: 1.4;
+  font-family: inherit;
+  font-weight: 500;
+  vertical-align: baseline;
 }
 
-.slug-input:disabled {
-  background: var(--gray-50);
+.slug-input-simple:disabled {
   color: var(--gray-500);
   cursor: not-allowed;
+}
+
+.slug-input-simple:focus {
+  border-bottom-color: var(--primary-600);
+}
+
+.slug-error {
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: 0.25rem;
 }
 
 .edit-actions {
@@ -1700,6 +1901,15 @@ onMounted(() => {
 
   .sidebar-section {
     padding: 1.25rem;
+  }
+
+  .visibility-toggle {
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .toggle-option {
+    justify-content: center;
   }
 
   .url-prefix,
