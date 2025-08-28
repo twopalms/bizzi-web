@@ -15,7 +15,7 @@
         <div class="create-card card">
           <h1>Create Your Business Card</h1>
           <p class="subtitle">Let's build your digital business card to share with contacts.</p>
-          
+
           <form @submit.prevent="handleCreateProfile" class="create-form">
             <div class="form-row">
               <div class="form-group">
@@ -118,6 +118,36 @@
             </div>
 
             <div class="form-group">
+              <label for="picture" class="form-label">Profile Picture</label>
+              <div class="picture-upload-container">
+                <div class="picture-preview" v-if="picturePreview">
+                  <img :src="picturePreview" alt="Profile preview" class="preview-image" />
+                  <button type="button" @click="removePicturePreview" class="remove-preview-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="picture-upload-area" v-else>
+                  <input
+                    id="picture"
+                    type="file"
+                    accept="image/*"
+                    @change="handlePictureSelect"
+                    :disabled="isCreating"
+                    class="picture-input"
+                  />
+                  <label for="picture" class="picture-upload-label">
+                    <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    <span>Add Profile Picture</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
               <label class="checkbox-label">
                 <input
                   v-model="form.public"
@@ -144,74 +174,130 @@
       <div v-else class="profile-display">
         <div class="profile-card card">
           <div class="profile-header">
-            <div class="profile-avatar">
-              <div class="avatar-placeholder">
-                <svg class="avatar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-              </div>
-            </div>
-            
             <div class="profile-info">
               <h1>{{ profile.name || 'Business Card' }}</h1>
               <div class="title-company">
-                <p v-if="profile.job_title" class="job-title">{{ profile.job_title }}</p>
-                <p v-if="profile.company" class="company">{{ profile.company }}</p>
+                <p v-if="profile.job_title || profile.company" class="job-company">
+                  <template v-if="profile.job_title && profile.company">
+                    {{ profile.job_title }}, {{ profile.company }}
+                  </template>
+                  <template v-else-if="profile.job_title">
+                    {{ profile.job_title }}
+                  </template>
+                  <template v-else-if="profile.company">
+                    {{ profile.company }}
+                  </template>
+                </p>
+                <p v-if="profile.location" class="location">{{ profile.location }}</p>
+              </div>
+            </div>
+
+            <div class="profile-avatar" @click="triggerPictureUpload" :class="{ 'uploading': isUploadingPicture }">
+              <input
+                ref="pictureUploadInput"
+                type="file"
+                accept="image/*"
+                @change="handleProfilePictureUpload"
+                class="hidden-file-input"
+              />
+              <div class="avatar-placeholder" v-if="!profile.picture">
+                <svg class="avatar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <div class="avatar-overlay">
+                  <svg class="upload-overlay-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                </div>
+              </div>
+              <div v-else class="avatar-image-container">
+                <img :src="profile.picture" :alt="profile.name" class="avatar-image" />
+                <div class="avatar-overlay">
+                  <svg class="upload-overlay-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </div>
+              </div>
+              <div v-if="isUploadingPicture" class="upload-spinner">
+                <div class="spinner"></div>
               </div>
             </div>
           </div>
 
           <div class="profile-content">
+            <div v-if="profile.bio" class="bio-section">
+              <p class="bio-text">{{ profile.bio }}</p>
+            </div>
+
             <div class="contact-section">
-              <h3 class="section-title">Contact Information</h3>
               <div class="contact-grid">
-                <div v-if="profile.email" class="contact-item">
+                <div v-if="profile.email" class="contact-item" :class="{ 'contact-item-hoverable': !isMobileDevice() }">
                   <div class="contact-icon-wrapper">
                     <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
                   </div>
                   <div class="contact-details">
                     <span class="contact-label">Email</span>
-                    <a :href="`mailto:${profile.email}`" class="contact-value">{{ profile.email }}</a>
+                    <div class="contact-value-row">
+                      <a v-if="isMobileDevice()" :href="`mailto:${profile.email}`" class="contact-value">{{ profile.email }}</a>
+                      <span v-else class="contact-value">{{ profile.email }}</span>
+                      <div v-if="!isMobileDevice()" class="copy-action">
+                        <div v-if="showCopySuccess && copySuccessType === 'Email'" class="copy-success">
+                          <svg class="success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                          </svg>
+                          <span class="success-text">Copied!</span>
+                        </div>
+                        <div v-else class="copy-icon" @click.stop="copyToClipboard(profile.email, 'Email')">
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div v-if="profile.phone_fmt || profile.phone_raw" class="contact-item">
+                <div v-if="profile.phone_fmt || profile.phone_raw" class="contact-item" :class="{ 'contact-item-hoverable': !isMobileDevice() }">
                   <div class="contact-icon-wrapper">
                     <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                     </svg>
                   </div>
                   <div class="contact-details">
                     <span class="contact-label">Phone</span>
-                    <a :href="`tel:${profile.phone_raw || profile.phone_fmt}`" class="contact-value">
-                      {{ profile.phone_fmt || profile.phone_raw }}
-                    </a>
-                  </div>
-                </div>
-
-                <div v-if="profile.location" class="contact-item">
-                  <div class="contact-icon-wrapper">
-                    <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                  </div>
-                  <div class="contact-details">
-                    <span class="contact-label">Location</span>
-                    <span class="contact-value">{{ profile.location }}</span>
+                    <div class="contact-value-row">
+                      <a v-if="isMobileDevice()" :href="`tel:${profile.phone_raw || profile.phone_fmt}`" class="contact-value">
+                        {{ profile.phone_fmt || profile.phone_raw }}
+                      </a>
+                      <span v-else class="contact-value">
+                        {{ profile.phone_fmt || profile.phone_raw }}
+                      </span>
+                      <div v-if="!isMobileDevice()" class="copy-action">
+                        <div v-if="showCopySuccess && copySuccessType === 'Phone'" class="copy-success">
+                          <svg class="success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                          </svg>
+                          <span class="success-text">Copied!</span>
+                        </div>
+                        <div v-else class="copy-icon" @click.stop="copyToClipboard(profile.phone_fmt || profile.phone_raw, 'Phone')">
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 <div v-if="profile.website" class="contact-item">
                   <div class="contact-icon-wrapper">
                     <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                     </svg>
                   </div>
@@ -225,43 +311,12 @@
               </div>
             </div>
 
-            <div v-if="profile.bio" class="bio-section">
-              <h3 class="section-title">About</h3>
-              <p class="bio-text">{{ profile.bio }}</p>
-            </div>
-
-            <div class="profile-footer">
-              <span :class="['status-badge', profile.public ? 'status-public' : 'status-private']">
-                <svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path v-if="profile.public" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                  <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
-                </svg>
-                {{ profile.public ? 'Public Card' : 'Private Card' }}
-              </span>
-            </div>
           </div>
         </div>
 
-        <div class="card-actions">
-          <button @click="editMode = true" class="btn btn-primary">
-            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-            Edit Card
-          </button>
-          <button class="btn btn-outline">
-            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
-            </svg>
-            Share Card
-          </button>
-        </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -290,12 +345,41 @@ const form = reactive({
   public: false
 })
 
+const pictureFile = ref<File | null>(null)
+const picturePreview = ref<string>('')
+const isUploadingPicture = ref(false)
+const pictureUploadInput = ref<HTMLInputElement | null>(null)
+const showCopySuccess = ref(false)
+const copySuccessType = ref('')
+
+// Mobile detection
+const isMobileDevice = () => {
+  return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+         ('ontouchstart' in window) ||
+         (window.innerWidth <= 768)
+}
+
+// Clipboard copy functionality
+const copyToClipboard = async (text: string, type: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    copySuccessType.value = type
+    showCopySuccess.value = true
+    setTimeout(() => {
+      showCopySuccess.value = false
+      copySuccessType.value = ''
+    }, 1000)
+  } catch (error) {
+    console.error('Failed to copy to clipboard:', error)
+    // Could add error state here if needed
+  }
+}
+
 const fetchProfile = async () => {
   try {
     // Get user ID from auth context
     const currentUser = user.value
-    console.log('Current user data:', currentUser) // Debug log
-    
+
     // The user ID is nested in the response structure
     const userId = currentUser?.data?.user?.id
     if (!userId) {
@@ -304,38 +388,18 @@ const fetchProfile = async () => {
       return
     }
 
-    console.log('Using user ID:', userId) // Debug log
-
     const response = await makeAuthenticatedRequest(`${import.meta.env.VITE_API_BASE_URL}/api/profiles/?user_id=${userId}`, {
       method: 'GET'
     })
 
     if (response.ok) {
       const data = await response.json()
-      console.log('Profile API response:', data) // Debug log
-      
+
       // Handle paginated response structure
       if (data && data.items && Array.isArray(data.items)) {
-        console.log('Found paginated response with', data.count, 'total items')
         if (data.items.length > 0) {
           profile.value = data.items[0] // Get the first (and should be only) profile
-          console.log('Found profile:', profile.value) // Debug log
-          console.log('Profile fields:', {
-            name: profile.value.name,
-            email: profile.value.email,
-            phone_fmt: profile.value.phone_fmt,
-            phone_raw: profile.value.phone_raw,
-            company: profile.value.company,
-            job_title: profile.value.job_title,
-            location: profile.value.location,
-            bio: profile.value.bio,
-            public: profile.value.public
-          }) // Debug profile fields
-        } else {
-          console.log('No profiles found in paginated response') // Debug log
         }
-      } else {
-        console.log('Unexpected response format:', data)
       }
     } else {
       console.error('Profile API returned error:', response.status, response.statusText)
@@ -344,6 +408,145 @@ const fetchProfile = async () => {
     console.error('Failed to fetch profile:', error)
   } finally {
     isLoading.value = false
+  }
+}
+
+const handlePictureSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (file) {
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      createError.value = 'Profile picture must be less than 10MB'
+      return
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      createError.value = 'Please select an image file'
+      return
+    }
+
+    pictureFile.value = file
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      picturePreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const removePicturePreview = () => {
+  pictureFile.value = null
+  picturePreview.value = ''
+  const input = document.getElementById('picture') as HTMLInputElement
+  if (input) input.value = ''
+}
+
+const triggerPictureUpload = () => {
+  if (pictureUploadInput.value) {
+    pictureUploadInput.value.click()
+  }
+}
+
+const makeFileUploadRequest = async (url: string, formData: FormData) => {
+  // Get CSRF token for authentication
+  const cookies = document.cookie.split(';')
+  let csrfToken = ''
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=')
+    if (name === 'csrftoken') {
+      csrfToken = value
+      break
+    }
+  }
+
+  return fetch(url, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'X-CSRFToken': csrfToken,
+      // Don't set Content-Type - let browser set it for multipart/form-data
+    },
+    body: formData
+  })
+}
+
+const handleProfilePictureUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (!file || !profile.value) return
+
+  // Validate file size (10MB limit)
+  if (file.size > 10 * 1024 * 1024) {
+    createError.value = 'Profile picture must be less than 10MB'
+    return
+  }
+
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    createError.value = 'Please select an image file'
+    return
+  }
+
+  isUploadingPicture.value = true
+
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await makeFileUploadRequest(
+      `${import.meta.env.VITE_API_BASE_URL}/api/profiles/${profile.value.slug}/picture/`,
+      formData
+    )
+
+    if (response.ok) {
+      const data = await response.json()
+      // Update the profile with the new picture URL
+      profile.value.picture = data.url
+      createError.value = '' // Clear any previous errors
+    } else {
+      createError.value = 'Failed to upload picture. Please try again.'
+    }
+  } catch (error) {
+    console.error('Picture upload error:', error)
+    createError.value = 'Network error. Please try again.'
+  } finally {
+    isUploadingPicture.value = false
+    // Reset the input
+    if (target) target.value = ''
+  }
+}
+
+const uploadPicture = async (slug: string) => {
+  if (!pictureFile.value) return null
+
+  isUploadingPicture.value = true
+
+  try {
+    const formData = new FormData()
+    formData.append('file', pictureFile.value)
+
+    const response = await makeFileUploadRequest(
+      `${import.meta.env.VITE_API_BASE_URL}/api/profiles/${slug}/picture/`,
+      formData
+    )
+
+    if (response.ok) {
+      const data = await response.json()
+      return data.url
+    } else {
+      throw new Error('Failed to upload picture')
+    }
+  } catch (error) {
+    console.error('Picture upload error:', error)
+    throw error
+  } finally {
+    isUploadingPicture.value = false
   }
 }
 
@@ -359,11 +562,24 @@ const handleCreateProfile = async () => {
 
     if (response.ok) {
       const data = await response.json()
+
+      // Upload picture if one was selected
+      if (pictureFile.value) {
+        try {
+          const pictureUrl = await uploadPicture(data.slug)
+          data.picture = pictureUrl
+        } catch (error) {
+          console.error('Failed to upload picture:', error)
+          createError.value = 'Profile created but picture upload failed'
+        }
+      }
+
       profile.value = data
       // Reset form
       Object.keys(form).forEach(key => {
         form[key as keyof typeof form] = key === 'public' ? false : ''
       })
+      removePicturePreview()
     } else {
       const errorData = await response.json()
       createError.value = errorData.message || 'Failed to create profile. Please try again.'
@@ -383,7 +599,7 @@ onMounted(() => {
 <style scoped>
 .card-container {
   min-height: calc(100vh - 4rem);
-  padding: 2rem;
+  padding: 1.5rem;
   background: linear-gradient(135deg, var(--gray-50) 0%, var(--primary-50) 100%);
 }
 
@@ -415,7 +631,7 @@ onMounted(() => {
 }
 
 .create-card-container {
-  max-width: 800px;
+  max-width: 640px;
   margin: 0 auto;
 }
 
@@ -518,12 +734,161 @@ onMounted(() => {
   margin-top: 1rem;
 }
 
+.picture-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.picture-preview {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 2px solid var(--gray-200);
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-preview-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.remove-preview-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.remove-preview-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.picture-upload-area {
+  position: relative;
+}
+
+.picture-input {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.picture-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  border: 2px dashed var(--gray-300);
+  border-radius: var(--radius-lg);
+  background: var(--gray-50);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.picture-upload-label:hover {
+  border-color: var(--primary-400);
+  background: var(--primary-25);
+  color: var(--primary-700);
+}
+
+.upload-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.hidden-file-input {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.avatar-image-container {
+  position: relative;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  border-radius: 50%;
+}
+
+.profile-avatar:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.upload-overlay-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+}
+
+.upload-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
 .profile-display {
-  max-width: 700px;
+  max-width: 560px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .profile-card {
@@ -536,8 +901,8 @@ onMounted(() => {
 .profile-header {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  padding: 2.5rem;
+  gap: 1.5rem;
+  padding: 2rem;
   background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
   color: white;
   margin-bottom: 0;
@@ -545,22 +910,35 @@ onMounted(() => {
 
 .profile-avatar {
   flex-shrink: 0;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+.profile-avatar.uploading {
+  pointer-events: none;
 }
 
 .avatar-placeholder {
-  width: 5rem;
-  height: 5rem;
+  width: 6.5rem;
+  height: 6.5rem;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   border: 3px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
 .avatar-icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3.25rem;
+  height: 3.25rem;
   color: white;
 }
 
@@ -583,25 +961,26 @@ onMounted(() => {
   gap: 0.25rem;
 }
 
-.job-title {
+.job-company {
   font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-  margin: 0;
-}
-
-.company {
-  font-size: 1.125rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: white;
   font-weight: 400;
   margin: 0;
 }
 
+.location {
+  font-size: 1rem;
+  color: white;
+  font-weight: 300;
+  margin: 0;
+}
+
+
 .profile-content {
-  padding: 2.5rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1.75rem;
 }
 
 .contact-section {
@@ -609,10 +988,10 @@ onMounted(() => {
 }
 
 .section-title {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--gray-900);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -628,24 +1007,110 @@ onMounted(() => {
 
 .contact-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .contact-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.75rem;
+  padding: 0.75rem;
   background: var(--gray-50);
   border-radius: var(--radius-lg);
   border: 1px solid var(--gray-200);
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .contact-item:hover {
   background: white;
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
+}
+
+.contact-item-hoverable:hover {
+  background: var(--gray-25);
+}
+
+.copy-action {
+  min-width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+.copy-icon {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-100);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+  color: var(--gray-600);
+}
+
+.copy-icon:hover {
+  background: var(--primary-100);
+  color: var(--primary-600);
+  transform: scale(1.05);
+}
+
+.copy-icon:active {
+  transform: scale(0.95);
+}
+
+.contact-item-hoverable:hover .copy-icon {
+  opacity: 1;
+}
+
+.copy-icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.copy-success {
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  background: #dcfce7; /* Light green background */
+  border-radius: 0.5rem;
+  animation: copySuccess 0.3s ease-out;
+  padding: 0 0.5rem;
+  min-width: fit-content;
+}
+
+.success-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: #16a34a; /* Green icon */
+}
+
+.success-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #16a34a !important; /* Fallback green */
+  color: var(--success-600) !important;
+}
+
+@keyframes copySuccess {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .contact-icon-wrapper {
@@ -673,6 +1138,12 @@ onMounted(() => {
   flex: 1;
 }
 
+.contact-value-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .contact-label {
   font-size: 12px;
   font-weight: 600;
@@ -693,16 +1164,17 @@ onMounted(() => {
   color: var(--primary-600);
 }
 
+
 .bio-section {
   margin: 0;
 }
 
 .bio-text {
   color: var(--gray-700);
-  line-height: 1.7;
+  line-height: 1.6;
   font-size: 15px;
   background: var(--gray-50);
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: var(--radius-lg);
   border-left: 4px solid var(--primary-500);
 }
@@ -710,7 +1182,7 @@ onMounted(() => {
 .profile-footer {
   display: flex;
   justify-content: center;
-  padding-top: 1rem;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--gray-200);
 }
 
@@ -790,8 +1262,8 @@ onMounted(() => {
   .profile-header {
     flex-direction: column;
     text-align: center;
-    gap: 1.5rem;
-    padding: 2rem;
+    gap: 1.25rem;
+    padding: 1.5rem;
   }
 
   .profile-info h1 {
@@ -807,12 +1279,12 @@ onMounted(() => {
   }
 
   .profile-content {
-    padding: 2rem;
-    gap: 2rem;
+    padding: 1.5rem;
+    gap: 1.5rem;
   }
 
   .contact-item {
-    padding: 1rem 0.75rem;
+    padding: 0.75rem 0.625rem;
   }
 
   .contact-details {
@@ -835,11 +1307,11 @@ onMounted(() => {
 
 @media (max-width: 480px) {
   .profile-header {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   .profile-content {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   .contact-item {
@@ -853,4 +1325,5 @@ onMounted(() => {
     align-items: center;
   }
 }
+
 </style>
