@@ -92,7 +92,7 @@ const handleLogin = async () => {
     if (response.ok) {
       // Success - save user data and redirect to home
       login(data)
-      router.push('/')
+      router.push('/app')
     } else {
       // Handle different error scenarios
       if (response.status === 400) {

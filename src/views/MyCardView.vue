@@ -37,7 +37,7 @@
                   v-model="form.job_title"
                   type="text"
                   :disabled="isCreating"
-                  placeholder="Software Engineer"
+                  placeholder="Financial Analyst"
                   class="form-input"
                 />
               </div>
@@ -71,14 +71,19 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="phone" class="form-label">Phone</label>
-                <input
-                  id="phone"
-                  v-model="form.phone"
-                  type="tel"
-                  :disabled="isCreating"
-                  placeholder="+1 (555) 123-4567"
-                  class="form-input"
-                />
+                <div class="phone-field-container">
+                  <span class="country-prefix">+1</span>
+                  <input
+                    id="phone"
+                    v-model="form.phoneNumber"
+                    @input="formatPhoneNumber"
+                    type="tel"
+                    :disabled="isCreating"
+                    placeholder="(555) 123-4567"
+                    maxlength="14"
+                    class="form-input"
+                  />
+                </div>
               </div>
               <div class="form-group">
                 <label for="location" class="form-label">Location</label>
@@ -147,18 +152,6 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="checkbox-label">
-                <input
-                  v-model="form.public"
-                  type="checkbox"
-                  :disabled="isCreating"
-                  class="form-checkbox"
-                />
-                <span class="checkbox-text">Make my card public</span>
-              </label>
-            </div>
-
             <button type="submit" :disabled="isCreating" class="btn btn-primary create-btn">
               {{ isCreating ? 'Creating Card...' : 'Create My Card' }}
             </button>
@@ -173,115 +166,31 @@
       <!-- Existing Profile - Display -->
       <div v-else class="profile-display">
         <div class="profile-layout">
-          <!-- Left Sidebar Navigation -->
-          <div class="profile-sidebar">
-            <div class="sidebar-section">
-              <div class="profile-options">
-                <h3 class="sidebar-title">Card Options</h3>
-
-                <!-- Public URL Section -->
-                <div class="option-group">
-                  <div class="option-header">
-                    <label class="option-label">Public URL</label>
-                    <div class="option-actions">
-                      <button v-if="!isEditingSlug" @click="startEditing" class="edit-btn">
-                        <svg class="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                      </button>
-                      <div v-else class="edit-actions-inline">
-                        <button @click="cancelEditing" class="cancel-btn-inline" :disabled="isUpdatingSlug">
-                          Cancel
-                        </button>
-                        <button @click="saveSlug" class="save-btn-inline" :disabled="isUpdatingSlug">
-                          {{ isUpdatingSlug ? 'Saving...' : 'Save' }}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="url-container">
-                    <!-- Display Mode -->
-                    <div v-if="!isEditingSlug" class="url-display">
-                      <a :href="`/profiles/${profile.slug}`" target="_blank" class="url-link">{{ publicProfileUrl }}</a>
-                    </div>
-
-                    <!-- Edit Mode -->
-                    <div v-else class="url-edit-mode">
-                      <div class="url-edit-display">
-                        <span class="url-prefix">{{ urlPrefix }}</span><input
-                          v-model="editableSlug"
-                          :disabled="isUpdatingSlug"
-                          class="slug-input-simple"
-                          placeholder="your-slug"
-                          @keydown.enter="saveSlug"
-                          @keydown.escape="cancelEditing"
-                        />
-                      </div>
-                      <div v-if="slugError" class="slug-error">
-                        {{ slugError }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Public/Private Toggle -->
-                <div class="option-group">
-                  <div class="option-header">
-                    <label class="option-label">Visibility</label>
-                  </div>
-                  <div class="visibility-toggle">
-                    <div class="toggle-option" :class="{ active: !profile.public }" @click="setVisibility(false)">
-                      <input
-                        type="radio"
-                        :checked="!profile.public"
-                        :disabled="isUpdatingVisibility"
-                        class="toggle-radio"
-                      />
-                      <span class="toggle-label">Private</span>
-                    </div>
-                    <div class="toggle-option" :class="{ active: profile.public }" @click="setVisibility(true)">
-                      <input
-                        type="radio"
-                        :checked="profile.public"
-                        :disabled="isUpdatingVisibility"
-                        class="toggle-radio"
-                      />
-                      <span class="toggle-label">Public</span>
-                    </div>
-                  </div>
-                  <div class="visibility-description">
-                    <span v-if="profile.public" class="description-text">Your profile is visible to everyone.</span>
-                    <span v-else class="description-text">Only you can see this profile.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Main Profile Card -->
           <div class="profile-main">
             <div class="profile-card card">
-          <div class="profile-header">
-            <div class="profile-info">
-              <h1>{{ profile.name || 'Business Card' }}</h1>
-              <div class="title-company">
-                <p v-if="profile.job_title || profile.company" class="job-company">
-                  <template v-if="profile.job_title && profile.company">
-                    {{ profile.job_title }}, {{ profile.company }}
-                  </template>
-                  <template v-else-if="profile.job_title">
-                    {{ profile.job_title }}
-                  </template>
-                  <template v-else-if="profile.company">
-                    {{ profile.company }}
-                  </template>
-                </p>
-                <p v-if="profile.location" class="location">{{ profile.location }}</p>
-              </div>
-            </div>
+              <!-- View Mode -->
+              <div v-if="!editMode">
+                <div class="profile-header">
+                  <div class="profile-info">
+                    <h1>{{ profile.name || 'Business Card' }}</h1>
+                    <div class="title-company">
+                      <p v-if="profile.job_title || profile.company" class="job-company">
+                        <template v-if="profile.job_title && profile.company">
+                          {{ profile.job_title }}, {{ profile.company }}
+                        </template>
+                        <template v-else-if="profile.job_title">
+                          {{ profile.job_title }}
+                        </template>
+                        <template v-else-if="profile.company">
+                          {{ profile.company }}
+                        </template>
+                      </p>
+                      <p v-if="profile.location" class="location">{{ profile.location }}</p>
+                    </div>
+                  </div>
 
-            <div class="profile-avatar" @click="triggerPictureUpload" :class="{ 'uploading': isUploadingPicture }">
+            <div class="profile-avatar" :class="{ 'uploading': isUploadingPicture }">
               <input
                 ref="pictureUploadInput"
                 type="file"
@@ -294,19 +203,9 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
-                <div class="avatar-overlay">
-                  <svg class="upload-overlay-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                  </svg>
-                </div>
               </div>
               <div v-else class="avatar-image-container">
                 <img :src="profile.picture" :alt="profile.name" class="avatar-image" />
-                <div class="avatar-overlay">
-                  <svg class="upload-overlay-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                </div>
               </div>
               <div v-if="isUploadingPicture" class="upload-spinner">
                 <div class="spinner"></div>
@@ -383,25 +282,252 @@
                   </div>
                 </div>
 
-                <div v-if="profile.website" class="contact-item">
+                <div v-if="profile.website" class="contact-item" :class="{ 'contact-item-hoverable': !isMobileDevice() }">
                   <div class="contact-icon-wrapper">
                     <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
                     </svg>
                   </div>
                   <div class="contact-details">
                     <span class="contact-label">Website</span>
-                    <a :href="profile.website" target="_blank" rel="noopener noreferrer" class="contact-value">
-                      {{ profile.website }}
-                    </a>
+                    <div class="contact-value-row">
+                      <a :href="profile.website" target="_blank" rel="noopener noreferrer" class="contact-value">
+                        {{ profile.website }}
+                      </a>
+                      <div v-if="!isMobileDevice()" class="copy-action">
+                        <div v-if="showCopySuccess && copySuccessType === 'Website'" class="copy-success">
+                          <svg class="success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                          </svg>
+                          <span class="success-text">Copied!</span>
+                        </div>
+                        <div v-else class="copy-icon" @click.stop="copyToClipboard(profile.website, 'Website')">
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
+
+              <!-- Edit Mode -->
+              <div v-else class="profile-edit-mode">
+                <div class="profile-header">
+                  <div class="profile-info">
+                    <input v-model="editForm.name" class="edit-input edit-name" placeholder="Your Name" />
+                    <div class="title-company">
+                      <div class="job-company-edit">
+                        <input v-model="editForm.job_title" class="edit-input edit-job" placeholder="Job Title" />
+                        <span class="separator" v-if="editForm.job_title && editForm.company">, </span>
+                        <input v-model="editForm.company" class="edit-input edit-company" placeholder="Company" />
+                      </div>
+                      <input v-model="editForm.location" class="edit-input edit-location" placeholder="Location" />
+                    </div>
+                  </div>
+
+                  <div class="profile-avatar" :class="{ 'uploading': isUploadingPicture }">
+                    <input
+                      ref="pictureUploadInput"
+                      type="file"
+                      accept="image/*"
+                      @change="handleProfilePictureUpload"
+                      class="hidden-file-input"
+                    />
+                    <div class="avatar-placeholder" v-if="!profile.picture">
+                      <svg class="avatar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                      <div class="avatar-overlay">
+                        <button @click="triggerPictureUpload" class="overlay-btn" title="Add picture">
+                          <svg class="overlay-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div v-else class="avatar-image-container">
+                      <img :src="profile.picture" :alt="profile.name" class="avatar-image" />
+                      <div class="avatar-overlay">
+                        <div class="overlay-icons">
+                          <button @click="triggerPictureUpload" class="overlay-btn" title="Change picture">
+                            <svg class="overlay-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                          </button>
+                          <button @click.stop="deletePicture" :disabled="isDeletingPicture" class="overlay-btn delete-btn" title="Delete picture">
+                            <svg class="overlay-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-if="isUploadingPicture" class="upload-spinner">
+                      <div class="spinner"></div>
+                    </div>
+                  </div>
+                  
+                </div>
+
+                <div class="profile-content">
+                  <div class="bio-section">
+                    <textarea v-model="editForm.bio" class="edit-textarea edit-bio" placeholder="Tell people about yourself..." rows="3"></textarea>
+                  </div>
+
+                  <div class="contact-section">
+                    <div class="contact-grid">
+                      <div class="contact-item">
+                        <div class="contact-icon-wrapper">
+                          <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                          </svg>
+                        </div>
+                        <div class="contact-details">
+                          <span class="contact-label">Email</span>
+                          <input v-model="editForm.email" class="edit-input edit-contact" placeholder="john@example.com" type="email" />
+                        </div>
+                      </div>
+
+                      <div class="contact-item">
+                        <div class="contact-icon-wrapper">
+                          <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                          </svg>
+                        </div>
+                        <div class="contact-details">
+                          <span class="contact-label">Phone</span>
+                          <div class="phone-field-container">
+                            <span class="country-prefix">+1</span>
+                            <input v-model="editForm.phoneNumber" @input="formatEditPhoneNumber" class="edit-input edit-contact phone-edit" placeholder="(555) 123-4567" type="tel" maxlength="14" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="contact-item">
+                        <div class="contact-icon-wrapper">
+                          <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                          </svg>
+                        </div>
+                        <div class="contact-details">
+                          <span class="contact-label">Website</span>
+                          <input v-model="editForm.website" class="edit-input edit-contact" placeholder="https://www.example.com" type="url" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="edit-actions">
+                  <button @click="saveProfile" class="save-profile-btn">Save Changes</button>
+                  <button @click="cancelEdit" class="cancel-edit-btn">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Sidebar Navigation -->
+          <div class="profile-sidebar">
+            <div class="sidebar-section">
+              <div class="profile-options">
+                <h3 class="sidebar-title">Card Options</h3>
+
+                <!-- Edit Card Button -->
+                <div class="option-group">
+                  <button @click="toggleEditMode" class="edit-card-btn">
+                    <svg class="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    {{ editMode ? 'View Card' : 'Edit Card' }}
+                  </button>
+                </div>
+
+                <!-- Public URL Section -->
+                <div class="option-group">
+                  <div class="option-header">
+                    <label class="option-label">Public URL</label>
+                    <div class="option-actions">
+                      <button v-if="!isEditingSlug" @click="startEditing" class="edit-btn">
+                        <svg class="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                      </button>
+                      <div v-else class="edit-actions-inline">
+                        <button @click="cancelEditing" class="cancel-btn-inline" :disabled="isUpdatingSlug">
+                          Cancel
+                        </button>
+                        <button @click="saveSlug" class="save-btn-inline" :disabled="isUpdatingSlug">
+                          {{ isUpdatingSlug ? 'Saving...' : 'Save' }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="url-container">
+                    <!-- Display Mode -->
+                    <div v-if="!isEditingSlug" class="url-display">
+                      <a :href="publicProfileUrl" target="_blank" class="url-link">{{ publicProfileUrl }}</a>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <div v-else class="url-edit-mode">
+                      <div class="url-edit-display">
+                        <span class="url-prefix">{{ urlPrefix }}</span><input
+                          v-model="editableSlug"
+                          :disabled="isUpdatingSlug"
+                          class="slug-input-simple"
+                          placeholder="your-slug"
+                          @keydown.enter="saveSlug"
+                          @keydown.escape="cancelEditing"
+                        />
+                      </div>
+                      <div v-if="slugError" class="slug-error">
+                        {{ slugError }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Public/Private Toggle -->
+                <div class="option-group">
+                  <div class="option-header">
+                    <label class="option-label">Visibility</label>
+                  </div>
+                  <div class="visibility-toggle">
+                    <div class="toggle-option" :class="{ active: !profile.public }" @click="setVisibility(false)">
+                      <input
+                        type="radio"
+                        :checked="!profile.public"
+                        :disabled="isUpdatingVisibility"
+                        class="toggle-radio"
+                      />
+                      <span class="toggle-label">Private</span>
+                    </div>
+                    <div class="toggle-option" :class="{ active: profile.public }" @click="setVisibility(true)">
+                      <input
+                        type="radio"
+                        :checked="profile.public"
+                        :disabled="isUpdatingVisibility"
+                        class="toggle-radio"
+                      />
+                      <span class="toggle-label">Public</span>
+                    </div>
+                  </div>
+                  <div class="visibility-description">
+                    <span v-if="profile.public" class="description-text">Your profile is visible to everyone.</span>
+                    <span v-else class="description-text">Only you can see this profile.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -428,11 +554,23 @@ const form = reactive({
   job_title: '',
   company: '',
   email: '',
-  phone: '',
+  phoneNumber: '',
   location: '',
   website: '',
   bio: '',
   public: false
+})
+
+// Edit form for live preview
+const editForm = reactive({
+  name: '',
+  job_title: '',
+  company: '',
+  email: '',
+  phoneNumber: '',
+  location: '',
+  website: '',
+  bio: ''
 })
 
 const pictureFile = ref<File | null>(null)
@@ -448,6 +586,7 @@ const isEditingSlug = ref(false)
 const originalSlug = ref('')
 const slugError = ref('')
 const isUpdatingVisibility = ref(false)
+const isDeletingPicture = ref(false)
 
 // Computed property for URL prefix
 const urlPrefix = computed(() => {
@@ -467,6 +606,111 @@ const isMobileDevice = () => {
          (window.innerWidth <= 768)
 }
 
+// Phone number formatting
+const formatPhoneNumber = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  let value = input.value.replace(/\D/g, '') // Remove all non-digits
+
+  if (value.length >= 6) {
+    value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')
+  } else if (value.length >= 3) {
+    value = value.replace(/(\d{3})(\d{3})/, '($1) $2')
+  } else if (value.length > 0) {
+    value = value.replace(/(\d{3})/, '($1)')
+  }
+
+  form.phoneNumber = value
+}
+
+// Phone number formatting for edit mode
+const formatEditPhoneNumber = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  let value = input.value.replace(/\D/g, '') // Remove all non-digits
+  
+  if (value.length >= 6) {
+    value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')
+  } else if (value.length >= 3) {
+    value = value.replace(/(\d{3})(\d{3})/, '($1) $2')
+  } else if (value.length > 0) {
+    value = value.replace(/(\d{3})/, '($1)')
+  }
+  
+  editForm.phoneNumber = value
+}
+
+// Save profile changes
+const saveProfile = async () => {
+  if (!profile.value?.slug) return
+  
+  try {
+    // Prepare form data with formatted phone number
+    const formData: any = { ...editForm }
+    
+    // Handle phone number formatting
+    if (editForm.phoneNumber) {
+      formData.phone = `+1${editForm.phoneNumber.replace(/\D/g, '')}`
+    }
+    delete formData.phoneNumber
+
+    // Filter out empty string fields
+    const filteredData = Object.fromEntries(
+      Object.entries(formData).filter(([key, value]) => value !== '')
+    )
+
+    const response = await makeAuthenticatedRequest(
+      `${import.meta.env.VITE_API_BASE_URL}/api/profiles/${profile.value.slug}/`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(filteredData)
+      }
+    )
+
+    if (response.ok) {
+      const updatedProfile = await response.json()
+      profile.value = updatedProfile
+      editMode.value = false // Exit edit mode
+      console.log('Profile updated successfully')
+    } else {
+      console.error('Failed to update profile:', response.status, response.statusText)
+    }
+  } catch (error) {
+    console.error('Network error updating profile:', error)
+  }
+}
+
+// Cancel editing
+const cancelEdit = () => {
+  editMode.value = false
+}
+
+// Delete profile picture
+const deletePicture = async () => {
+  if (!profile.value?.slug) return
+  
+  isDeletingPicture.value = true
+  
+  try {
+    const response = await makeAuthenticatedRequest(
+      `${import.meta.env.VITE_API_BASE_URL}/api/profiles/${profile.value.slug}/picture/`,
+      {
+        method: 'DELETE'
+      }
+    )
+
+    if (response.ok) {
+      // Remove picture from profile
+      profile.value.picture = null
+      console.log('Profile picture deleted successfully')
+    } else {
+      console.error('Failed to delete profile picture:', response.status, response.statusText)
+    }
+  } catch (error) {
+    console.error('Network error deleting profile picture:', error)
+  } finally {
+    isDeletingPicture.value = false
+  }
+}
+
 // Clipboard copy functionality
 const copyToClipboard = async (text: string, type: string) => {
   try {
@@ -480,6 +724,22 @@ const copyToClipboard = async (text: string, type: string) => {
   } catch (error) {
     console.error('Failed to copy to clipboard:', error)
     // Could add error state here if needed
+  }
+}
+
+// Toggle edit mode
+const toggleEditMode = () => {
+  editMode.value = !editMode.value
+  if (editMode.value && profile.value) {
+    // Initialize edit form with current profile data
+    editForm.name = profile.value.name || ''
+    editForm.job_title = profile.value.job_title || ''
+    editForm.company = profile.value.company || ''
+    editForm.email = profile.value.email || ''
+    editForm.phoneNumber = profile.value.phone_fmt || profile.value.phone_raw || ''
+    editForm.location = profile.value.location || ''
+    editForm.website = profile.value.website || ''
+    editForm.bio = profile.value.bio || ''
   }
 }
 
@@ -813,9 +1073,23 @@ const handleCreateProfile = async () => {
   isCreating.value = true
 
   try {
+    // Prepare form data with formatted phone number
+    const formData: any = { ...form }
+    
+    // Handle phone number formatting
+    if (form.phoneNumber) {
+      formData.phone = `+1${form.phoneNumber.replace(/\D/g, '')}`
+    }
+    delete formData.phoneNumber
+
+    // Filter out empty string fields
+    const filteredData = Object.fromEntries(
+      Object.entries(formData).filter(([key, value]) => value !== '')
+    )
+
     const response = await makeAuthenticatedRequest(`${import.meta.env.VITE_API_BASE_URL}/api/profiles/`, {
       method: 'POST',
-      body: JSON.stringify(form)
+      body: JSON.stringify(filteredData)
     })
 
     if (response.ok) {
@@ -952,6 +1226,197 @@ onMounted(() => {
   border-color: var(--primary-500);
   box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
 }
+
+.phone-field-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.country-prefix {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.edit-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-card-btn:hover {
+  background: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.edit-card-btn .edit-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Edit Mode Styles */
+.profile-edit-mode .profile-header {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  color: white;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.edit-input {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: inherit;
+  font-weight: inherit;
+  color: var(--gray-800);
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.edit-input:focus {
+  background: white;
+  border-color: rgba(255, 255, 255, 0.8);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.edit-input::placeholder {
+  color: var(--gray-500);
+}
+
+.edit-name {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.job-company-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.edit-job, .edit-company {
+  font-size: 1.25rem;
+  font-weight: 400;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.separator {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.edit-location {
+  font-size: 1rem;
+  font-weight: 300;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.edit-textarea {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  font-size: 15px;
+  color: var(--gray-700);
+  resize: vertical;
+  min-height: 100px;
+  width: 100%;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.edit-textarea:focus {
+  background: white;
+  border-color: var(--primary-500);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+}
+
+.edit-contact {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 15px;
+  color: var(--gray-800);
+  flex: 1;
+}
+
+.edit-contact:focus {
+  border-color: var(--primary-500);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+}
+
+.phone-edit {
+  margin-left: 0.5rem;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+.save-profile-btn {
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-profile-btn:hover {
+  background: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.cancel-edit-btn {
+  background: transparent;
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-edit-btn:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+}
+
+
 
 .checkbox-label {
   display: flex;
@@ -1118,8 +1583,49 @@ onMounted(() => {
   border-radius: 50%;
 }
 
-.profile-avatar:hover .avatar-overlay {
+.profile-edit-mode .profile-avatar:hover .avatar-overlay {
   opacity: 1;
+}
+
+.overlay-icons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.overlay-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
+}
+
+.overlay-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.overlay-btn.delete-btn:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.9);
+}
+
+.overlay-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: white;
 }
 
 .upload-overlay-icon {
@@ -1148,7 +1654,7 @@ onMounted(() => {
 
 .profile-layout {
   display: grid;
-  grid-template-columns: 550px 1fr;
+  grid-template-columns: 650px minmax(450px, 1fr);
   gap: 2rem;
   align-items: start;
 }
@@ -1379,6 +1885,8 @@ onMounted(() => {
   line-height: 1.4;
   font-family: inherit;
   min-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .url-prefix {
@@ -1530,7 +2038,7 @@ onMounted(() => {
   padding: 0;
   overflow: hidden;
   background: linear-gradient(135deg, var(--primary-50) 0%, white 100%);
-  border: 2px solid var(--primary-100);
+  border: 1px solid var(--primary-100);
 }
 
 .profile-header {
@@ -1546,16 +2054,20 @@ onMounted(() => {
 .profile-avatar {
   flex-shrink: 0;
   position: relative;
-  cursor: pointer;
   transition: transform 0.2s ease;
-}
-
-.profile-avatar:hover {
-  transform: scale(1.05);
 }
 
 .profile-avatar.uploading {
   pointer-events: none;
+}
+
+/* Edit mode avatar styles */
+.profile-edit-mode .profile-avatar {
+  cursor: pointer;
+}
+
+.profile-edit-mode .profile-avatar:hover {
+  transform: scale(1.05);
 }
 
 .avatar-placeholder {
@@ -1879,6 +2391,21 @@ onMounted(() => {
   border-color: var(--gray-400);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 1200px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .profile-sidebar {
+    order: 2;
+  }
+
+  .profile-main {
+    order: 1;
+  }
 }
 
 @media (max-width: 768px) {

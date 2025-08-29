@@ -2,13 +2,12 @@
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-brand">
-        <router-link to="/" class="brand-link">
+        <router-link to="/app" class="brand-link">
           <h1>Bizzi</h1>
         </router-link>
       </div>
 
       <div class="nav-links">
-        <router-link to="/my-card" class="nav-link">My Card</router-link>
       </div>
       
       <div class="nav-profile">
