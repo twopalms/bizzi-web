@@ -56,10 +56,13 @@ body {
   background-color: var(--gray-50);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  overflow: hidden;
 }
 
 #app {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* Modern button styles */
@@ -188,17 +191,19 @@ a:hover {
 }
 
 .card-container {
-  min-height: calc(100vh - 4rem);
+  height: calc(100vh - 4rem);
   padding: 1.5rem;
   background: linear-gradient(135deg, var(--gray-50) 0%, var(--primary-50) 100%);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: start;
 }
 
 .main-layout {
   display: grid;
-  grid-template-columns: 350px 1fr 400px;
-  gap: 2rem;
-  max-width: 1600px;
-  margin: 0 auto;
+  grid-template-columns: 370px 510px 370px;
+  gap: 1.5rem;
   align-items: start;
 }
 
@@ -375,6 +380,156 @@ a:hover {
   align-items: center;
 }
 
+/* Delete Card Styles */
+.delete-card-section {
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  background: #fef2f2;
+}
+
+.delete-description {
+  margin: 0 0 0.75rem 0;
+  font-size: 14px;
+  color: #dc2626;
+}
+
+.delete-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-card-btn:hover {
+  background: #b91c1c;
+}
+
+.delete-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: var(--radius-lg);
+  max-width: 400px;
+  margin: 1rem;
+  box-shadow: var(--shadow-xl);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--gray-400);
+}
+
+.modal-close-btn svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.warning-icon {
+  margin: 0 auto 1rem;
+  width: 3rem;
+  height: 3rem;
+  color: #f59e0b;
+}
+
+.warning-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.modal-message {
+  margin: 0;
+  color: var(--gray-700);
+  line-height: 1.5;
+}
+
+.modal-actions {
+  padding: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--gray-200);
+}
+
+.modal-cancel-btn,
+.modal-delete-btn {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s;
+}
+
+.modal-cancel-btn {
+  background: white;
+  color: var(--gray-700);
+  border-color: var(--gray-300);
+}
+
+.modal-cancel-btn:hover {
+  background: var(--gray-50);
+}
+
+.modal-delete-btn {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+.modal-delete-btn:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
 .error-close-btn {
   background: none;
   border: none;
@@ -520,6 +675,7 @@ a:hover {
   border: 1px solid var(--gray-200);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  min-width: 510px;
 }
 
 /* Simplified structure - content-area and profile-display should be transparent in edit mode */
@@ -1630,15 +1786,15 @@ a:hover {
   box-shadow: var(--shadow-sm);
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1300px) {
   .main-layout {
-    grid-template-columns: 320px 1fr 380px;
+    grid-template-columns: 350px 510px 350px;
     gap: 1.5rem;
     max-width: 1500px;
   }
 
   .main-layout.two-column {
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 350px 1fr;
     max-width: 1300px;
   }
 }
@@ -1804,16 +1960,19 @@ a:hover {
 .card-edit-form {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  max-height: calc(100vh - 7rem);
   background: white;
-  border-left: 1px solid var(--gray-200);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   min-width: 320px;
   width: 100%;
+  overflow-y: auto;
 }
 
 .edit-form-header {
   position: sticky;
-  top: 4rem;
+  top: 0;
   z-index: 10;
   padding: 1.5rem;
   border-bottom: 1px solid var(--gray-200);

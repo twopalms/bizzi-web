@@ -57,6 +57,7 @@
           @delete-picture="handleDeletePicture"
           @save="handleSaveCard"
           @clear-save-error="saveError = ''"
+          @delete-card="handleDeleteCard"
         />
       </div>
     </div>
@@ -84,6 +85,7 @@ const {
   setVisibility,
   updateSlug,
   deletePicture,
+  deleteCard,
 } = useCards()
 
 // Local state
@@ -244,6 +246,7 @@ const handleSaveCard = async () => {
     }
     pendingPictureFile.value = null // Clear pending file after save
     isPictureMarkedForDeletion.value = false // Reset deletion flag after save
+    editFormData.value = {} // Clear form data so hasPendingChanges becomes false
     
     // Show success message for 1 second
     showSaveSuccess.value = true
@@ -269,6 +272,17 @@ const handleDeletePicture = async () => {
   // Mark picture for deletion (don't actually delete until save)
   isPictureMarkedForDeletion.value = true
   pendingPictureFile.value = null // Clear any pending upload
+}
+
+// Handle card deletion
+const handleDeleteCard = async () => {
+  const result = await deleteCard()
+  if (result?.success) {
+    // Card successfully deleted, no need to do anything else
+    // The composable already handles removing from list and clearing selection
+  } else {
+    saveError.value = result?.error || 'Failed to delete card'
+  }
 }
 
 // Initialize

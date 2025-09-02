@@ -90,13 +90,16 @@ export function useCards() {
 
   const saveCard = async (formData: Record<string, any>, pendingPictureFile?: File) => {
     try {
+      // Create a copy to avoid mutating the original formData
+      const dataToSave = { ...formData }
+      
       // Handle phone number
-      if (formData.phoneNumber) {
-        formData.phone = formData.phoneNumber
+      if (dataToSave.phoneNumber) {
+        dataToSave.phone = dataToSave.phoneNumber
       } else {
-        formData.phone = null
+        dataToSave.phone = null
       }
-      delete formData.phoneNumber
+      delete dataToSave.phoneNumber
 
       // Convert empty strings to null for nullable fields, filter out non-model fields
       const nullableFields = ['name', 'company', 'job_title', 'email', 'website', 'bio', 'location', 'phone']
@@ -104,7 +107,7 @@ export function useCards() {
       const stringFields = ['slug']
       const filteredData: Record<string, any> = {}
       
-      for (const [key, value] of Object.entries(formData)) {
+      for (const [key, value] of Object.entries(dataToSave)) {
         if (key !== 'pendingPictureFile') {
           if (nullableFields.includes(key)) {
             filteredData[key] = value === '' ? null : value
@@ -382,6 +385,35 @@ export function useCards() {
     }
   }
 
+  const deleteCard = async (): Promise<{ success: boolean; error?: string }> => {
+    if (!card.value?.uuid) {
+      return { success: false, error: 'No card to delete' }
+    }
+
+    try {
+      const response = await cardRequest(card.value.uuid, 'DELETE', {})
+      
+      if (response.ok) {
+        // Remove card from cards array
+        const cardIndex = cards.value.findIndex(c => c.uuid === card.value?.uuid)
+        if (cardIndex !== -1) {
+          cards.value.splice(cardIndex, 1)
+        }
+        
+        // Clear selected card
+        selectedCard.value = null
+        
+        return { success: true }
+      } else {
+        console.error('Failed to delete card:', response.status, response.statusText)
+        return { success: false, error: 'Failed to delete card' }
+      }
+    } catch (error) {
+      console.error('Network error deleting card:', error)
+      return { success: false, error: 'Network error' }
+    }
+  }
+
   return {
     // State
     cards,
@@ -398,5 +430,6 @@ export function useCards() {
     updateSlug,
     deletePicture,
     uploadPicture,
+    deleteCard,
   }
 }
