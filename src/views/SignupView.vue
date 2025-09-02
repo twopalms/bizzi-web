@@ -91,9 +91,9 @@ const handleSignup = async () => {
     const data = await response.json()
 
     if (response.ok) {
-      // Success - save user data and redirect to home
+      // Success - save user data and redirect to cards
       login(data)
-      router.push('/app')
+      router.push('/cards')
     } else {
       // Handle different error scenarios
       if (response.status === 400) {

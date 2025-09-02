@@ -2,9 +2,9 @@
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-brand">
-        <router-link to="/app" class="brand-link">
+        <div class="brand-link">
           <h1>Bizzi</h1>
-        </router-link>
+        </div>
       </div>
 
       <div class="nav-links">
@@ -124,7 +124,7 @@ onUnmounted(() => {
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.025em;
-  cursor: pointer;
+  cursor: default;
 }
 
 .nav-links {

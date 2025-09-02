@@ -8,8 +8,8 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/app',
-      name: 'home',
+      path: '/cards',
+      name: 'cards',
       component: MyCardView,
       meta: { requiresAuth: true }
     },
@@ -35,7 +35,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated.value) {
     next('/login')
   } else if ((to.path === '/signup' || to.path === '/login') && isAuthenticated.value) {
-    next('/app')
+    next('/cards')
   } else {
     next()
   }
