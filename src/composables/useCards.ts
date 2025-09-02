@@ -160,6 +160,50 @@ export function useCards() {
             cards.value[index] = updatedCard
           }
           selectedCard.value = updatedCard
+          
+          // If there's a pending picture file for existing card, upload it now
+          if (pendingPictureFile) {
+            try {
+              const formData = new FormData()
+              formData.append('file', pendingPictureFile)
+
+              // Get CSRF token
+              const cookies = document.cookie.split(';')
+              let csrfToken = ''
+              for (const cookie of cookies) {
+                const [name, value] = cookie.trim().split('=')
+                if (name === 'csrftoken') {
+                  csrfToken = value
+                  break
+                }
+              }
+
+              const picResponse = await fetch(`${API_BASE}/api/cards/${updatedCard.uuid}/picture/`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                  'X-CSRFToken': csrfToken,
+                },
+                body: formData,
+              })
+
+              if (picResponse.ok) {
+                const picData = await picResponse.json()
+                updatedCard.picture = picData.url
+                if (selectedCard.value) {
+                  selectedCard.value.picture = picData.url
+                }
+                // Update the cards array as well
+                if (index !== -1) {
+                  cards.value[index].picture = picData.url
+                }
+              } else {
+                console.error('Failed to upload picture during card update')
+              }
+            } catch (error) {
+              console.error('Picture upload error during card update:', error)
+            }
+          }
         }
 
         console.log(isCreating ? 'Card created successfully' : 'Card updated successfully')

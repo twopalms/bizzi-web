@@ -19,14 +19,7 @@
         </div>
       </div>
 
-      <div class="profile-avatar" :class="{ uploading: isUploadingPicture }">
-        <input
-          ref="pictureUploadInput"
-          type="file"
-          accept="image/*"
-          @change="handleProfilePictureUpload"
-          class="hidden-file-input"
-        />
+      <div class="profile-avatar">
         <div class="avatar-placeholder" v-if="!card.picture">
           <svg class="avatar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -39,9 +32,6 @@
         </div>
         <div v-else class="avatar-image-container">
           <img :src="card.picture" :alt="card.name" class="avatar-image" />
-        </div>
-        <div v-if="isUploadingPicture" class="upload-spinner">
-          <div class="spinner"></div>
         </div>
       </div>
     </div>
@@ -252,12 +242,6 @@ interface Props {
 
 defineProps<Props>()
 
-const emit = defineEmits<{
-  uploadPicture: [file: File]
-}>()
-
-const isUploadingPicture = ref(false)
-const pictureUploadInput = ref<HTMLInputElement | null>(null)
 const showCopySuccess = ref(false)
 const copySuccessType = ref('')
 
@@ -285,19 +269,4 @@ const copyToClipboard = async (text: string, type: string) => {
   }
 }
 
-const handleProfilePictureUpload = async (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-
-  if (!file) return
-
-  isUploadingPicture.value = true
-  
-  try {
-    emit('uploadPicture', file)
-  } finally {
-    isUploadingPicture.value = false
-    if (target) target.value = ''
-  }
-}
 </script>

@@ -8,6 +8,8 @@
       </div>
 
       <div class="nav-links">
+        <router-link to="/cards" class="nav-link">My Cards</router-link>
+        <router-link to="/contacts" class="nav-link">Contacts</router-link>
       </div>
       
       <div class="nav-profile">
