@@ -11,28 +11,17 @@
       </div>
 
       <!-- Main Content Layout -->
-      <div v-else :class="['main-layout', { 'two-column': !editMode && !isCreatingNew }]">
+      <div v-else class="main-layout">
         <!-- Left Sidebar - Cards List -->
         <CardsList
           :cards="cards"
           :selected-card="selectedCard"
           :card-limit-error="cardLimitError"
           :is-creating-new="isCreatingNew"
-          :edit-mode="editMode"
-          :is-editing-slug="isEditingSlug"
-          :is-updating-slug="isUpdatingSlug"
-          :is-updating-visibility="isUpdatingVisibility"
-          :slug-error="slugError"
-          @toggle-edit="toggleEditMode"
           @start-creating="startCreatingCard"
-          @cancel="cancelEdit"
           @save="handleSaveCard"
           @clear-error="cardLimitError = ''"
           @select-card="selectCard"
-          @update-slug="handleUpdateSlug"
-          @set-visibility="handleSetVisibility"
-          @start-editing-slug="startEditingSlug"
-          @cancel-editing-slug="cancelEditingSlug"
         />
 
         <!-- Middle Content Area - Card Preview -->
@@ -55,17 +44,19 @@
           />
         </div>
 
-        <!-- Right Sidebar - Edit Form (only show when editing/creating) -->
+        <!-- Right Sidebar - Edit Form -->
         <CardEditForm
-          v-if="editMode || isCreatingNew"
           :card="selectedCard"
           :is-creating-new="isCreatingNew"
           :is-picture-marked-for-deletion="isPictureMarkedForDeletion"
+          :save-error="saveError"
+          :has-pending-changes="hasPendingChanges"
+          :show-save-success="showSaveSuccess"
           @update-form="handleFormUpdate"
           @upload-picture="handleUploadPicture"
           @delete-picture="handleDeletePicture"
           @save="handleSaveCard"
-          @cancel="cancelEdit"
+          @clear-save-error="saveError = ''"
         />
       </div>
     </div>
@@ -96,17 +87,49 @@ const {
 } = useCards()
 
 // Local state
-const editMode = ref(false)
 const isCreatingNew = ref(false)
-const isEditingSlug = ref(false)
-const isUpdatingSlug = ref(false)
-const isUpdatingVisibility = ref(false)
-const slugError = ref('')
-const editableSlug = ref('')
-const originalSlug = ref('')
 const editFormData = ref<Record<string, any>>({})
 const pendingPictureFile = ref<File | null>(null)
 const isPictureMarkedForDeletion = ref(false)
+const saveError = ref('')
+const showSaveSuccess = ref(false)
+
+// Check if there are pending changes to save
+const hasPendingChanges = computed(() => {
+  if (isCreatingNew.value) {
+    // For new cards, check if any field has content or there's a pending picture
+    const hasFormData = Object.values(editFormData.value).some(value => 
+      value !== null && value !== undefined && value !== ''
+    )
+    return hasFormData || pendingPictureFile.value !== null
+  }
+  
+  // If no card is selected and not creating new, disable save button
+  if (!selectedCard.value) return false
+  
+  // If editFormData is empty (initial state), no changes
+  if (Object.keys(editFormData.value).length === 0) return false
+  
+  // Check if there's a pending picture or deletion
+  if (pendingPictureFile.value || isPictureMarkedForDeletion.value) return true
+  
+  // Compare form data with current card data
+  const formPhone = editFormData.value.phoneNumber || ''
+  const cardPhone = selectedCard.value.phone_fmt || selectedCard.value.phone_raw || ''
+  
+  return (
+    (editFormData.value.name || '') !== (selectedCard.value.name || '') ||
+    (editFormData.value.job_title || '') !== (selectedCard.value.job_title || '') ||
+    (editFormData.value.company || '') !== (selectedCard.value.company || '') ||
+    (editFormData.value.email || '') !== (selectedCard.value.email || '') ||
+    formPhone !== cardPhone ||
+    (editFormData.value.location || '') !== (selectedCard.value.location || '') ||
+    (editFormData.value.website || '') !== (selectedCard.value.website || '') ||
+    (editFormData.value.bio || '') !== (selectedCard.value.bio || '') ||
+    Boolean(editFormData.value.public) !== Boolean(selectedCard.value.public) ||
+    (editFormData.value.slug || '') !== (selectedCard.value.slug || '')
+  )
+})
 
 // Create a preview card that merges selected card with form data
 const previewCard = computed(() => {
@@ -129,18 +152,15 @@ const previewCard = computed(() => {
     public: false,
   }
   
-  // If we're not editing, just return the selected card
-  if (!editMode.value && !isCreatingNew.value) {
-    return baseCard
-  }
+  // Always merge with form data for live preview
   
   // Merge with form data for live preview
   const previewCardData = {
     ...baseCard,
     ...editFormData.value,
-    // Convert phoneNumber to phone_fmt for display
+    // Use phoneNumber for both formatted and raw display
     phone_fmt: editFormData.value.phoneNumber || baseCard.phone_fmt,
-    phone_raw: editFormData.value.phoneNumber?.replace(/\D/g, '') || baseCard.phone_raw,
+    phone_raw: editFormData.value.phoneNumber || baseCard.phone_raw,
   }
   
   // If there's a pending picture file, create a preview URL for it
@@ -168,10 +188,7 @@ const isMobileDevice = () => {
 // Select a card from the list
 const selectCard = (cardItem: any) => {
   selectCardFromComposable(cardItem)
-  editMode.value = false
   isCreatingNew.value = false
-  editableSlug.value = cardItem.slug || ''
-  originalSlug.value = cardItem.slug || ''
   // Reset flags when selecting a different card
   isPictureMarkedForDeletion.value = false
   pendingPictureFile.value = null
@@ -189,35 +206,11 @@ const startCreatingCard = () => {
   cardLimitError.value = ''
   selectedCard.value = null
   isCreatingNew.value = true
-  editMode.value = true
   editFormData.value = {}
   pendingPictureFile.value = null // Clear any pending file
 }
 
-// Toggle edit mode
-const toggleEditMode = () => {
-  editMode.value = !editMode.value
-  if (editMode.value) {
-    // Reset flags when entering edit mode
-    isPictureMarkedForDeletion.value = false
-    pendingPictureFile.value = null
-  }
-}
 
-// Cancel editing
-const cancelEdit = () => {
-  if (isCreatingNew.value) {
-    isCreatingNew.value = false
-    editMode.value = false
-    pendingPictureFile.value = null // Clear pending file
-    isPictureMarkedForDeletion.value = false // Reset deletion flag
-    selectedCard.value = cards.value.length > 0 ? cards.value[0] : null
-  } else {
-    editMode.value = false
-    pendingPictureFile.value = null // Clear any pending changes including picture
-    isPictureMarkedForDeletion.value = false // Reset deletion flag
-  }
-}
 
 // Handle form updates from CardEditForm component
 const handleFormUpdate = (formData: Record<string, any>) => {
@@ -226,12 +219,20 @@ const handleFormUpdate = (formData: Record<string, any>) => {
 
 // Save card changes
 const handleSaveCard = async () => {
+  // Don't save if there are no pending changes
+  if (!hasPendingChanges.value) return
+  
+  // Clear any previous save errors
+  saveError.value = ''
+  
   // If picture is marked for deletion, delete it first (for existing cards)
   if (isPictureMarkedForDeletion.value && selectedCard.value && !isCreatingNew.value) {
     try {
       await deletePicture()
     } catch (error) {
       console.error('Failed to delete picture:', error)
+      saveError.value = 'Failed to delete picture. Please try again.'
+      return
     }
   }
   
@@ -241,64 +242,20 @@ const handleSaveCard = async () => {
     if (isCreatingNew.value) {
       isCreatingNew.value = false
     }
-    editMode.value = false
     pendingPictureFile.value = null // Clear pending file after save
     isPictureMarkedForDeletion.value = false // Reset deletion flag after save
     
-    // Update slug references if this is a new card
-    if (result.card?.slug) {
-      editableSlug.value = result.card.slug
-      originalSlug.value = result.card.slug
-    }
+    // Show success message for 1 second
+    showSaveSuccess.value = true
+    setTimeout(() => {
+      showSaveSuccess.value = false
+    }, 1000)
+  } else {
+    // Handle save errors
+    saveError.value = result?.error || 'Failed to save card. Please try again.'
   }
 }
 
-// Handle visibility change
-const handleSetVisibility = async (isPublic: boolean) => {
-  if (!selectedCard.value) return
-  
-  isUpdatingVisibility.value = true
-  
-  try {
-    await setVisibility(isPublic)
-  } finally {
-    isUpdatingVisibility.value = false
-  }
-}
-
-// Handle slug update
-const handleUpdateSlug = async (newSlug: string) => {
-  isUpdatingSlug.value = true
-  slugError.value = ''
-  
-  try {
-    const result = await updateSlug(newSlug)
-    
-    if (result?.success) {
-      originalSlug.value = newSlug
-      isEditingSlug.value = false
-    } else if (result?.error) {
-      slugError.value = result.error
-    }
-  } finally {
-    isUpdatingSlug.value = false
-  }
-}
-
-// Start editing slug
-const startEditingSlug = () => {
-  isEditingSlug.value = true
-  originalSlug.value = selectedCard.value?.slug || ''
-  editableSlug.value = selectedCard.value?.slug || ''
-  slugError.value = ''
-}
-
-// Cancel editing slug
-const cancelEditingSlug = () => {
-  isEditingSlug.value = false
-  editableSlug.value = originalSlug.value
-  slugError.value = ''
-}
 
 // Handle picture upload
 const handleUploadPicture = async (file: File) => {

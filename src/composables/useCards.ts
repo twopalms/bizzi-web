@@ -90,16 +90,31 @@ export function useCards() {
 
   const saveCard = async (formData: Record<string, any>, pendingPictureFile?: File) => {
     try {
-      // Handle phone number formatting
+      // Handle phone number
       if (formData.phoneNumber) {
-        formData.phone = `+1${formData.phoneNumber.replace(/\D/g, '')}`
+        formData.phone = formData.phoneNumber
+      } else {
+        formData.phone = null
       }
       delete formData.phoneNumber
 
-      // Filter out empty string fields (but keep the pendingPictureFile separate)
-      const filteredData = Object.fromEntries(
-        Object.entries(formData).filter(([key, value]) => value !== '' && key !== 'pendingPictureFile'),
-      )
+      // Convert empty strings to null for nullable fields, filter out non-model fields
+      const nullableFields = ['name', 'company', 'job_title', 'email', 'website', 'bio', 'location', 'phone']
+      const booleanFields = ['public']
+      const stringFields = ['slug']
+      const filteredData: Record<string, any> = {}
+      
+      for (const [key, value] of Object.entries(formData)) {
+        if (key !== 'pendingPictureFile') {
+          if (nullableFields.includes(key)) {
+            filteredData[key] = value === '' ? null : value
+          } else if (booleanFields.includes(key)) {
+            filteredData[key] = Boolean(value)
+          } else if (stringFields.includes(key)) {
+            filteredData[key] = value || ''
+          }
+        }
+      }
 
       const isCreating = !card.value?.uuid
       const response = await cardRequest(
@@ -214,6 +229,19 @@ export function useCards() {
           response.status,
           response.statusText,
         )
+        
+        // Handle 400 errors with detail message
+        if (response.status === 400) {
+          try {
+            const errorData = await response.json()
+            if (errorData.detail) {
+              return { success: false, error: errorData.detail }
+            }
+          } catch (parseError) {
+            console.error('Failed to parse error response:', parseError)
+          }
+        }
+        
         return { success: false, error: 'Failed to save card' }
       }
     } catch (error) {

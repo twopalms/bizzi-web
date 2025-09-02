@@ -1,18 +1,40 @@
 <template>
   <div class="card-edit-form">
     <div class="edit-form-header">
-      <h3>{{ isCreatingNew ? 'Create Card' : 'Edit Card' }}</h3>
-      <div class="form-actions">
-        <button @click="$emit('cancel')" class="cancel-btn">Cancel</button>
-        <button @click="$emit('save')" class="save-btn">Save</button>
+      <div class="header-top">
+        <h3>{{ isCreatingNew ? 'Create Card' : 'Edit Card' }}</h3>
+        <div class="form-actions">
+          <span v-if="showSaveSuccess" class="save-success">Card saved</span>
+          <button @click="$emit('save')" :disabled="!hasPendingChanges" class="save-btn">Save</button>
+        </div>
+      </div>
+      
+      <!-- Save Error Display -->
+      <div v-if="saveError" class="save-error">
+        <span>{{ saveError }}</span>
+        <button @click="$emit('clearSaveError')" class="error-close-btn">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       </div>
     </div>
 
     <div class="edit-form-content">
       <div class="form-section">
-        <h4 class="section-title">Profile Picture</h4>
-        
-        <div class="picture-upload-section">
+        <h4 class="section-title collapsible" @click="sectionsOpen.picture = !sectionsOpen.picture">
+          <span>Profile Picture</span>
+          <svg class="collapse-icon" :class="{ 'rotate': sectionsOpen.picture }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </h4>
+
+        <div v-if="sectionsOpen.picture" class="picture-upload-section">
           <input
             ref="pictureUploadInput"
             type="file"
@@ -20,7 +42,7 @@
             @change="handlePictureUpload"
             class="hidden-file-input"
           />
-          
+
           <div v-if="!previewImageUrl && (!card?.picture || isPictureMarkedForDeletion)" class="upload-placeholder">
             <div class="upload-icon">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,23 +59,23 @@
           </div>
 
           <div v-else-if="!isPictureMarkedForDeletion" class="picture-preview">
-            <img 
-              :src="previewImageUrl || card?.picture || ''" 
-              :alt="localForm.name || 'Profile picture'" 
-              class="preview-image" 
+            <img
+              :src="previewImageUrl || card?.picture || ''"
+              :alt="localForm.name || 'Profile picture'"
+              class="preview-image"
             />
             <div class="picture-actions">
               <button @click="triggerPictureUpload" class="change-btn">Change</button>
-              <button 
+              <button
                 v-if="!isCreatingNew && card?.picture"
-                @click="$emit('deletePicture')" 
+                @click="$emit('deletePicture')"
                 class="delete-btn"
               >
                 Delete
               </button>
-              <button 
+              <button
                 v-else-if="previewImageUrl"
-                @click="clearPreviewImage" 
+                @click="clearPreviewImage"
                 class="delete-btn"
               >
                 Remove
@@ -65,8 +87,14 @@
       </div>
 
       <div class="form-section">
-        <h4 class="section-title">Basic Information</h4>
-        
+        <h4 class="section-title collapsible" @click="sectionsOpen.basic = !sectionsOpen.basic">
+          <span>Basic Information</span>
+          <svg class="collapse-icon" :class="{ 'rotate': sectionsOpen.basic }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </h4>
+
+        <div v-if="sectionsOpen.basic">
         <div class="form-group">
           <label class="form-label">Full Name</label>
           <input
@@ -116,11 +144,18 @@
             rows="4"
           ></textarea>
         </div>
+        </div>
       </div>
 
       <div class="form-section">
-        <h4 class="section-title">Contact Information</h4>
+        <h4 class="section-title collapsible" @click="sectionsOpen.contact = !sectionsOpen.contact">
+          <span>Contact Information</span>
+          <svg class="collapse-icon" :class="{ 'rotate': sectionsOpen.contact }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </h4>
 
+        <div v-if="sectionsOpen.contact">
         <div class="form-group">
           <label class="form-label">Email</label>
           <input
@@ -133,17 +168,12 @@
 
         <div class="form-group">
           <label class="form-label">Phone Number</label>
-          <div class="phone-input-container">
-            <span class="country-prefix">+1</span>
-            <input
-              v-model="localForm.phoneNumber"
-              @input="formatPhoneNumber"
-              class="form-input phone-input"
-              placeholder="(555) 123-4567"
-              type="tel"
-              maxlength="14"
-            />
-          </div>
+          <input
+            v-model="localForm.phoneNumber"
+            class="form-input"
+            placeholder="555-123-4567"
+            type="tel"
+          />
         </div>
 
         <div class="form-group">
@@ -155,6 +185,76 @@
             type="url"
           />
         </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4 class="section-title collapsible" @click="sectionsOpen.options = !sectionsOpen.options">
+          <span>Card Options</span>
+          <svg class="collapse-icon" :class="{ 'rotate': sectionsOpen.options }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </h4>
+
+        <div v-if="sectionsOpen.options" class="section-content">
+          <!-- Public URL Section -->
+          <div class="form-group">
+            <label class="form-label">Public URL</label>
+            <div class="url-input-container">
+              <div class="url-input-wrapper">
+                <span class="url-prefix">{{ urlPrefix }}</span>
+                <input
+                  v-model="localForm.slug"
+                  class="form-input slug-input"
+                  placeholder="your-custom-url"
+                />
+              </div>
+              <div class="url-preview" v-if="localForm.slug">
+                <span class="preview-label">Preview: </span>
+                <a :href="`${urlPrefix}${localForm.slug}`" target="_blank" class="url-link">
+                  {{ urlPrefix }}{{ localForm.slug }}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visibility Section -->
+          <div class="form-group">
+            <label class="form-label">Visibility</label>
+            <div class="visibility-options">
+              <div class="visibility-toggle">
+                <div
+                  class="toggle-option"
+                  :class="{ active: !localForm.public }"
+                  @click="localForm.public = false"
+                >
+                  <input
+                    type="radio"
+                    :checked="!localForm.public"
+                    class="toggle-radio"
+                  />
+                  <span class="toggle-label">Private</span>
+                </div>
+                <div
+                  class="toggle-option"
+                  :class="{ active: localForm.public }"
+                  @click="localForm.public = true"
+                >
+                  <input
+                    type="radio"
+                    :checked="localForm.public"
+                    class="toggle-radio"
+                  />
+                  <span class="toggle-label">Public</span>
+                </div>
+              </div>
+              <div class="visibility-description">
+                <span v-if="localForm.public" class="description-text">Your card is visible to everyone.</span>
+                <span v-else class="description-text">Only you can see this card.</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -162,13 +262,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onBeforeUnmount } from 'vue'
+import { ref, reactive, watch, onBeforeUnmount, computed } from 'vue'
 import type { Card } from '../composables/useCards'
 
 interface Props {
   card: Card | null
   isCreatingNew: boolean
   isPictureMarkedForDeletion: boolean
+  saveError: string
+  hasPendingChanges: boolean
+  showSaveSuccess: boolean
 }
 
 const props = defineProps<Props>()
@@ -178,11 +281,19 @@ const emit = defineEmits<{
   uploadPicture: [file: File]
   deletePicture: []
   save: []
-  cancel: []
+  clearSaveError: []
 }>()
 
 const pictureUploadInput = ref<HTMLInputElement | null>(null)
 const previewImageUrl = ref<string | null>(null)
+
+// Section collapse state - all closed by default
+const sectionsOpen = reactive({
+  picture: false,
+  basic: false,
+  contact: false,
+  options: false,
+})
 
 // Local form state
 const localForm = reactive({
@@ -194,7 +305,20 @@ const localForm = reactive({
   location: '',
   website: '',
   bio: '',
+  public: false,
+  slug: '',
 })
+
+// Computed properties for URL handling
+const urlPrefix = computed(() => {
+  return `${window.location.origin}/cards/`
+})
+
+const publicCardUrl = computed(() => {
+  if (!props.card?.slug) return ''
+  return `${window.location.origin}/cards/${props.card.slug}`
+})
+
 
 // Initialize form when card changes
 watch(() => props.card, (newCard) => {
@@ -207,16 +331,37 @@ watch(() => props.card, (newCard) => {
     localForm.location = newCard.location || ''
     localForm.website = newCard.website || ''
     localForm.bio = newCard.bio || ''
+    localForm.public = newCard.public || false
+    localForm.slug = newCard.slug || ''
   } else if (props.isCreatingNew) {
     // Clear form for new card
-    Object.keys(localForm).forEach(key => {
-      localForm[key as keyof typeof localForm] = ''
-    })
+    localForm.name = ''
+    localForm.job_title = ''
+    localForm.company = ''
+    localForm.email = ''
+    localForm.phoneNumber = ''
+    localForm.location = ''
+    localForm.website = ''
+    localForm.bio = ''
+    localForm.public = false
+    localForm.slug = ''
     // Clear preview image
     if (previewImageUrl.value) {
       URL.revokeObjectURL(previewImageUrl.value)
       previewImageUrl.value = null
     }
+  } else {
+    // No card selected and not creating new - clear form to initial state
+    localForm.name = ''
+    localForm.job_title = ''
+    localForm.company = ''
+    localForm.email = ''
+    localForm.phoneNumber = ''
+    localForm.location = ''
+    localForm.website = ''
+    localForm.bio = ''
+    localForm.public = false
+    localForm.slug = ''
   }
 }, { immediate: true })
 
@@ -232,22 +377,6 @@ watch(() => [props.card, props.isCreatingNew], ([newCard, isCreating]) => {
 watch(localForm, (newForm) => {
   emit('updateForm', { ...newForm })
 }, { deep: true })
-
-// Phone number formatting
-const formatPhoneNumber = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  let value = input.value.replace(/\D/g, '') // Remove all non-digits
-
-  if (value.length >= 6) {
-    value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')
-  } else if (value.length >= 3) {
-    value = value.replace(/(\d{3})(\d{3})/, '($1) $2')
-  } else if (value.length > 0) {
-    value = value.replace(/(\d{3})/, '($1)')
-  }
-
-  localForm.phoneNumber = value
-}
 
 const triggerPictureUpload = () => {
   if (pictureUploadInput.value) {
@@ -281,7 +410,7 @@ const handlePictureUpload = async (event: Event) => {
 
   // Emit the file to parent for storage until save
   emit('uploadPicture', file)
-  
+
   // Clear the input
   if (target) target.value = ''
 }

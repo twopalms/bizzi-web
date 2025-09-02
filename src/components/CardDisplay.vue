@@ -41,7 +41,7 @@
         <p class="bio-text">{{ card.bio }}</p>
       </div>
 
-      <div class="contact-section">
+      <div v-if="hasContactInfo" class="contact-section">
         <div class="contact-grid">
           <!-- Email -->
           <div
@@ -173,14 +173,7 @@
             :class="{ 'contact-item-hoverable': !isMobileDevice() }"
           >
             <div class="contact-icon-wrapper">
-              <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9-3-9m-9 9a9 9 0 919-9"
-                />
-              </svg>
+              <i class="pi pi-globe contact-icon"></i>
             </div>
             <div class="contact-details">
               <span class="contact-label">Website</span>
@@ -233,17 +226,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Card } from '../composables/useCards'
 
 interface Props {
   card: Card
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const showCopySuccess = ref(false)
 const copySuccessType = ref('')
+
+// Check if any contact information exists
+const hasContactInfo = computed(() => {
+  return props.card.email || props.card.phone_fmt || props.card.phone_raw || props.card.website
+})
 
 // Mobile detection
 const isMobileDevice = (): boolean => {

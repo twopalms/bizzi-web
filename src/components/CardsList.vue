@@ -3,18 +3,8 @@
     <div class="sidebar-header">
       <h2 class="sidebar-title">My Cards</h2>
 
-      <!-- Show plus and edit buttons when not creating/editing -->
-      <div v-if="!isCreatingNew && !editMode" class="header-buttons">
-        <button v-if="selectedCard" @click="$emit('toggleEdit')" class="edit-card-btn">
-          <svg class="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-            />
-          </svg>
-        </button>
+      <!-- Show create button -->
+      <div v-if="!isCreatingNew" class="header-buttons">
         <button @click="$emit('startCreating')" class="create-card-btn">
           <svg class="plus-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -27,11 +17,6 @@
         </button>
       </div>
 
-      <!-- Show cancel/save buttons when creating/editing -->
-      <div v-else class="header-actions">
-        <button @click="$emit('cancel')" class="cancel-btn">Cancel</button>
-        <button @click="$emit('save')" class="save-btn">Save</button>
-      </div>
     </div>
 
     <!-- Cards List -->
@@ -92,37 +77,18 @@
         </div>
       </div>
 
-      <!-- Card Options - Show in left sidebar when editing -->
-      <CardOptions
-        v-if="(editMode || isCreatingNew) && selectedCard"
-        :card="selectedCard"
-        :is-editing-slug="isEditingSlug"
-        :is-updating-slug="isUpdatingSlug"
-        :is-updating-visibility="isUpdatingVisibility"
-        :slug-error="slugError"
-        @update-slug="$emit('updateSlug', $event)"
-        @set-visibility="$emit('setVisibility', $event)"
-        @start-editing-slug="$emit('startEditingSlug')"
-        @cancel-editing-slug="$emit('cancelEditingSlug')"
-      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Card } from '../composables/useCards'
-import CardOptions from './CardOptions.vue'
 
 interface Props {
   cards: Card[]
   selectedCard: Card | null
   cardLimitError: string
   isCreatingNew: boolean
-  editMode: boolean
-  isEditingSlug: boolean
-  isUpdatingSlug: boolean
-  isUpdatingVisibility: boolean
-  slugError: string
 }
 
 defineProps<Props>()
@@ -134,9 +100,5 @@ defineEmits<{
   save: []
   clearError: []
   selectCard: [card: Card]
-  updateSlug: [slug: string]
-  setVisibility: [isPublic: boolean]
-  startEditingSlug: []
-  cancelEditingSlug: []
 }>()
 </script>
