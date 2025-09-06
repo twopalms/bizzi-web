@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import SignupView from '../views/SignupView.vue'
 import LoginView from '../views/LoginView.vue'
-import MyCardView from '../views/MyCardView.vue'
-import ContactsView from '../views/ContactsView.vue'
 import { useAuth } from '../composables/useAuth'
 
 const router = createRouter({
@@ -10,28 +8,45 @@ const router = createRouter({
   routes: [
     {
       path: '/cards',
+      components: {
+        default: () => import('@/views/MyCardView.vue'),
+        LeftSidebar: () => import('@/components/LeftNav.vue'),
+      },
       name: 'cards',
-      component: MyCardView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/contacts',
       name: 'contacts',
-      component: ContactsView,
-      meta: { requiresAuth: true }
+      // TODO: update to contacts
+      components: {
+        default: () => import('@/views/MyCardView.vue'),
+        LeftSidebar: () => import('@/components/LeftNav.vue'),
+      },
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/account',
+      name: 'account',
+      // TODO: update to account
+      components: {
+        default: () => import('@/views/MyCardView.vue'),
+        LeftSidebar: () => import('@/components/LeftNav.vue'),
+      },
+      meta: { requiresAuth: true },
     },
     {
       path: '/login',
       name: 'login',
       component: LoginView,
-      meta: { requiresAuth: false }
+      meta: { requiresAuth: false },
     },
     {
       path: '/signup',
       name: 'signup',
       component: SignupView,
-      meta: { requiresAuth: false }
-    }
+      meta: { requiresAuth: false },
+    },
   ],
 })
 
