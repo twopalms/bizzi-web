@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAuth } from '../composables/useAuth'
+import ActionButton from '../components/ActionButton.vue'
 import CardPreview from '../components/CardPreview.vue'
 
 const { makeAuthenticatedRequest, user } = useAuth()
@@ -15,6 +16,8 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL
 async function fetchCards() {
   error.value = null
   loading.value = true
+
+  // TODO: handle response codes
 
   try {
     const currentUser = user.value
@@ -48,37 +51,32 @@ onMounted(() => {
 <!-- TODO: Make spinner reusable component  -->
 
 <template>
-  <main class="flex flex-col p-5">
-    <h2 class="w-full text-2xl text-gray-600 pb-6 text-left font-semibold">My Cards</h2>
-    <!-- <div v-if="loading" class="flex justify-center items-center py-10"> -->
+  <div class="flex flex-col min-w-60 p-4 bg-gray-300 border-r border-gray-400">
+    <!-- <div v-if="cards.length === 0 && !loading" class="justify-center items-center mb-36"> -->
+    <!--   <div class="flex flex-col justify-between items-center min-h-24"> -->
+    <!--     <h3 class="text-2xl">Create a card to get started!</h3> -->
+    <!--     <ActionButton text="Create New Card" /> -->
+    <!--   </div> -->
+    <!-- </div> -->
+    <div class="flex items-center justify-between mb-4 px-4">
+      <h2 class="text-2xl text-gray-600 font-semibold">My Cards</h2>
+      <ActionButton text="+" />
+    </div>
+
+    <!-- <div v-if="loading" class="flex justify-center items-center"> -->
     <!--   <div -->
     <!--     class="h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full animate-ping" -->
     <!--   ></div> -->
     <!-- </div> -->
 
-    <div
-      v-if="cards.length === 0 && !loading"
-      class="flex flex-1 justify-center items-center mb-36"
-    >
-      <div class="flex flex-col justify-between items-center min-h-24">
-        <h3 class="text-2xl">Create a card to get started!</h3>
-        <button
-          class="w-fit bg-blue-500 hover:bg-blue-700 hover:cursor-pointer text-white font-bold py-2 px-4 rounded-lg"
-        >
-          Create New Card
-        </button>
-      </div>
-    </div>
-    <div v-else class="flex flex-col w-xs">
-      <ul>
-        <li v-for="card in cards" :key="card" class="mb-4">
-          <router-link :to="{ name: 'card-detail', params: { id: card.uuid } }">
-            <CardPreview :card="card" />
-          </router-link>
-        </li>
-      </ul>
-    </div>
-  </main>
+    <ul>
+      <li v-for="card in cards" :key="card" class="mb-4">
+        <router-link :to="{ name: 'card-detail', params: { id: card.uuid } }">
+          <CardPreview :card="card" />
+        </router-link>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <style scoped></style>

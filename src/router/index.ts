@@ -8,41 +8,27 @@ const router = createRouter({
   routes: [
     {
       path: '/cards',
-      components: {
-        default: () => import('@/views/MyCardView.vue'),
-        LeftSidebar: () => import('@/components/LeftNav.vue'),
-      },
       name: 'cards',
       meta: { requiresAuth: true },
+      component: () => import('@/components/CardLayout.vue'),
       children: [
         {
           path: ':id',
           name: 'card-detail',
-          components: {
-            default: () => import('@/views/MyCardView.vue'),
-            LeftSidebar: () => import('@/components/LeftNav.vue'),
-          },
+          component: () => import('@/components/CardDetail.vue'),
         },
       ],
     },
     {
       path: '/contacts',
       name: 'contacts',
-      // TODO: update to contacts
-      components: {
-        default: () => import('@/views/MyCardView.vue'),
-        LeftSidebar: () => import('@/components/LeftNav.vue'),
-      },
+      components: {},
       meta: { requiresAuth: true },
     },
     {
       path: '/account',
       name: 'account',
-      // TODO: update to account
-      components: {
-        default: () => import('@/views/MyCardView.vue'),
-        LeftSidebar: () => import('@/components/LeftNav.vue'),
-      },
+      components: {},
       meta: { requiresAuth: true },
     },
     {

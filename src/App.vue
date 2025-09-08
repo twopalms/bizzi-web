@@ -1,9 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import LeftNav from './components/LeftNav.vue'
+</script>
 
 <template>
-  <div class="flex font-custom h-screen">
-    <router-view name="LeftSidebar" class="order-1" />
-    <router-view class="w-full order-2 bg-gray-200" />
+  <div class="flex flex-1 font-custom h-screen">
+    <LeftNav />
+    <router-view />
   </div>
 </template>
 
