@@ -20,7 +20,7 @@ const fetchCsrfToken = async (): Promise<void> => {
   try {
     await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/csrf`, {
       method: 'POST',
-      credentials: 'include'
+      credentials: 'include',
     })
   } catch (error) {
     console.error('Failed to fetch CSRF token:', error)
@@ -34,7 +34,7 @@ const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) 
   }
 
   const csrfToken = getCsrfToken()
-  
+
   return fetch(url, {
     ...options,
     credentials: 'include',
@@ -55,9 +55,12 @@ export function useAuth() {
   const logout = async () => {
     try {
       // Call backend logout API with CSRF token
-      await makeAuthenticatedRequest(`${import.meta.env.VITE_API_BASE_URL}/auth/browser/v1/auth/session`, {
-        method: 'DELETE',
-      })
+      await makeAuthenticatedRequest(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/browser/v1/auth/session`,
+        {
+          method: 'DELETE',
+        },
+      )
     } catch (error) {
       console.error('Backend logout failed:', error)
     } finally {
@@ -67,17 +70,56 @@ export function useAuth() {
     }
   }
 
+  // const checkAuth = async () => {
+  //   isCheckingAuth.value = true
+  //
+  //   try {
+  //     const response = await makeAuthenticatedRequest(
+  //       `${import.meta.env.VITE_API_BASE_URL}/auth/browser/v1/auth/session`,
+  //       {
+  //         method: 'GET',
+  //       },
+  //     )
+  //
+  //     if (response.ok) {
+  //       const sessionData = await response.json()
+  //       user.value = sessionData
+  //       localStorage.setItem('user', JSON.stringify(sessionData))
+  //     } else {
+  //       // Session invalid or expired
+  //       user.value = null
+  //       localStorage.removeItem('user')
+  //     }
+  //   } catch (error) {
+  //     // Network error or server down - fall back to localStorage
+  //     const savedUser = localStorage.getItem('user')
+  //     if (savedUser) {
+  //       user.value = JSON.parse(savedUser)
+  //     }
+  //   } finally {
+  //     isCheckingAuth.value = false
+  //   }
+  // }
+
   const checkAuth = async () => {
     isCheckingAuth.value = true
-    
+
     try {
-      const response = await makeAuthenticatedRequest(`${import.meta.env.VITE_API_BASE_URL}/auth/browser/v1/auth/session`, {
-        method: 'GET',
-      })
+      // First try localStorage
+      const savedUser = localStorage.getItem('user')
+      if (savedUser) {
+        user.value = JSON.parse(savedUser)
+        return
+      }
+
+      // No local user → check with server
+      const response = await makeAuthenticatedRequest(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/browser/v1/auth/session`,
+        { method: 'GET' },
+      )
 
       if (response.ok) {
         const sessionData = await response.json()
-        console.log('Session data from backend:', sessionData) // Debug log
         user.value = sessionData
         localStorage.setItem('user', JSON.stringify(sessionData))
       } else {
@@ -86,11 +128,8 @@ export function useAuth() {
         localStorage.removeItem('user')
       }
     } catch (error) {
-      // Network error or server down - fall back to localStorage
-      const savedUser = localStorage.getItem('user')
-      if (savedUser) {
-        user.value = JSON.parse(savedUser)
-      }
+      // Network error/server down → no local user either
+      user.value = null
     } finally {
       isCheckingAuth.value = false
     }
@@ -103,6 +142,6 @@ export function useAuth() {
     login,
     logout,
     checkAuth,
-    makeAuthenticatedRequest
+    makeAuthenticatedRequest,
   }
 }

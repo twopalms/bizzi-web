@@ -14,6 +14,16 @@ const router = createRouter({
       },
       name: 'cards',
       meta: { requiresAuth: true },
+      children: [
+        {
+          path: ':id',
+          name: 'card-detail',
+          components: {
+            default: () => import('@/views/MyCardView.vue'),
+            LeftSidebar: () => import('@/components/LeftNav.vue'),
+          },
+        },
+      ],
     },
     {
       path: '/contacts',

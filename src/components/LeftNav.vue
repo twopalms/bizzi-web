@@ -15,12 +15,12 @@ const isActive = (url: string) => {
 
 const route = useRoute()
 
-const navStatic = 'px-3 py-2 rounded-md hover:bg-gray-800 hover:text-white'
-const navActive = 'bg-gray-800 text-white'
+const navStatic = 'px-3 py-2 rounded-md hover:bg-blue-900 hover:text-white'
+const navActive = 'bg-blue-900 text-white'
 </script>
 
 <template>
-  <aside class="text-xl w-60 bg-gray-900 text-gray-100 flex flex-col justify-between text-center">
+  <aside class="w-60 bg-blue-950 text-gray-100 flex flex-col justify-between text-center">
     <!-- TODO: Replace with Logo -->
     <p class="p-4 text-4xl font-bold">Bizzi</p>
 
@@ -28,7 +28,7 @@ const navActive = 'bg-gray-800 text-white'
     <nav class="flex flex-col space-y-1 px-4">
       <router-link
         v-for="item in items"
-        activeClass="bg-gray-800 text-white"
+        :activeClass="navActive"
         :key="item"
         :to="item.url"
         :class="navStatic"
@@ -38,7 +38,11 @@ const navActive = 'bg-gray-800 text-white'
     </nav>
     <div class="py-4 my-8 border-t border-gray-700">
       <nav class="flex flex-col space-y-1 px-4">
-        <router-link :to="account.url" :class="[navStatic, isActive(account.url) ? navActive : '']">
+        <router-link
+          :to="account.url"
+          :activeClass="navActive"
+          :class="[navStatic, isActive(account.url) ? navActive : '']"
+        >
           My Account
         </router-link>
       </nav>

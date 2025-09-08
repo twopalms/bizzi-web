@@ -3,7 +3,7 @@
 <template>
   <div class="flex font-custom h-screen">
     <router-view name="LeftSidebar" class="order-1" />
-    <router-view class="w-full order-2" />
+    <router-view class="w-full order-2 bg-gray-200" />
   </div>
 </template>
 
