@@ -3,8 +3,8 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const items = ref([
-  { label: 'Cards', url: '/cards' },
-  { label: 'Contacts', url: '/contacts' },
+  { label: 'Cards', url: '/cards', icon: 'pi-id-card' },
+  { label: 'Contacts', url: '/contacts', icon: 'pi-inbox' },
 ])
 
 const account = ref({ label: 'Account', url: '/account' })
@@ -24,7 +24,6 @@ const navActive = 'bg-blue-900 text-white'
     <!-- TODO: Replace with Logo -->
     <h1 class="p-4 text-4xl font-bold text-center">Bizzi</h1>
 
-    <!-- Nav links -->
     <nav class="flex flex-col space-y-1">
       <router-link
         v-for="item in items"
@@ -33,6 +32,7 @@ const navActive = 'bg-blue-900 text-white'
         :to="item.url"
         :class="navStatic"
       >
+        <i :class="`pi ${item.icon} mr-4`"></i>
         {{ item.label }}
       </router-link>
     </nav>
@@ -43,6 +43,7 @@ const navActive = 'bg-blue-900 text-white'
           :activeClass="navActive"
           :class="[navStatic, isActive(account.url) ? navActive : '']"
         >
+          <i class="pi pi-user mr-4"></i>
           My Account
         </router-link>
       </nav>
