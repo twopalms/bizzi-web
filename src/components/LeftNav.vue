@@ -20,7 +20,7 @@ const navActive = 'bg-blue-900 text-white'
 </script>
 
 <template>
-  <aside class="min-w-48 bg-blue-950 text-gray-100 flex flex-col justify-between px-4">
+  <aside class="min-w-48 w-48 bg-blue-950 text-gray-100 flex flex-col justify-between px-4">
     <!-- TODO: Replace with Logo -->
     <h1 class="p-4 text-4xl font-bold text-center">Bizzi</h1>
 
@@ -36,8 +36,8 @@ const navActive = 'bg-blue-900 text-white'
         {{ item.label }}
       </router-link>
     </nav>
-    <div class="py-4 my-8 border-t border-gray-700">
-      <nav class="flex flex-col space-y-1">
+    <div class="py-4 border-t border-gray-700">
+      <nav class="flex flex-col">
         <router-link
           :to="account.url"
           :activeClass="navActive"

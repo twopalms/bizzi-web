@@ -70,37 +70,6 @@ export function useAuth() {
     }
   }
 
-  // const checkAuth = async () => {
-  //   isCheckingAuth.value = true
-  //
-  //   try {
-  //     const response = await makeAuthenticatedRequest(
-  //       `${import.meta.env.VITE_API_BASE_URL}/auth/browser/v1/auth/session`,
-  //       {
-  //         method: 'GET',
-  //       },
-  //     )
-  //
-  //     if (response.ok) {
-  //       const sessionData = await response.json()
-  //       user.value = sessionData
-  //       localStorage.setItem('user', JSON.stringify(sessionData))
-  //     } else {
-  //       // Session invalid or expired
-  //       user.value = null
-  //       localStorage.removeItem('user')
-  //     }
-  //   } catch (error) {
-  //     // Network error or server down - fall back to localStorage
-  //     const savedUser = localStorage.getItem('user')
-  //     if (savedUser) {
-  //       user.value = JSON.parse(savedUser)
-  //     }
-  //   } finally {
-  //     isCheckingAuth.value = false
-  //   }
-  // }
-
   const checkAuth = async () => {
     isCheckingAuth.value = true
 

@@ -4,7 +4,5 @@ import CardList from '../components/CardList.vue'
 
 <template>
   <CardList />
-  <div class="m-4 w-full">
-    <router-view />
-  </div>
+  <router-view />
 </template>

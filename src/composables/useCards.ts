@@ -32,7 +32,7 @@ export function useCards() {
   const loading = ref<bool>(false)
   const error = ref<string>(null)
 
-  async function fetchCard(id): Card {
+  async function fetchCard(id: Card) {
     error.value = card.value = null
     loading.value = true
 
@@ -52,6 +52,5 @@ export function useCards() {
   const hasContactInfo = computed(() => {
     return card.value.email || card.value.phone_fmt || card.value.website
   })
-
   return { card, loading, error, fetchCard, hasContactInfo }
 }
