@@ -2,6 +2,9 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCards } from '../composables/useCards.ts'
+import { useClipboard } from '@vueuse/core'
+
+const { text, copy, copied } = useClipboard()
 
 defineProps({
   color: {
@@ -49,7 +52,7 @@ function cleanContactInfo(data) {
 </script>
 
 <template>
-  <div v-if="!loading" class="flex flex-col w-120 max-w-120 rounded-lg shadow-lg shadow-black/40">
+  <div v-if="!loading" class="flex flex-col max-w-120 rounded-lg shadow-lg shadow-black/40">
     <div
       class="bg-[var(--cardColor)] flex items-center justify-end min-h-36 max-h-36 rounded-t-lg"
       :style="`--cardColor: ${color}`"
@@ -70,6 +73,7 @@ function cleanContactInfo(data) {
           :style="`--cardColor: ${color}`"
         />
         <div
+          @click="copy(item.value)"
           @mouseover="contactItemIndex = index"
           @mouseleave="contactItemIndex = null"
           v-for="(item, index) in cleanContactInfo(card)"
@@ -97,6 +101,7 @@ function cleanContactInfo(data) {
         />
         <ol>
           <li
+            @click="copy(link.url)"
             @mouseover="linkItemIndex = index"
             @mouseleave="linkItemIndex = null"
             v-for="(link, index) in card.links"

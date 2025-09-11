@@ -1,54 +1,56 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import NavList from './NavList.vue'
 
-const items = ref([
-  { label: 'Cards', url: '/cards', icon: 'pi-id-card' },
-  { label: 'Contacts', url: '/contacts', icon: 'pi-inbox' },
-])
-
-const account = ref({ label: 'Account', url: '/account' })
-
-const isActive = (url: string) => {
-  return route.path === url
-}
+const mainNav = [
+  { icon: 'pi-id-card', url: '/cards', label: 'Cards' },
+  { icon: 'pi-inbox', url: '/contacts', label: 'Contacts' },
+]
+const bottomNav = [{ icon: 'pi-user', url: '/account', label: 'Account' }]
 
 const route = useRoute()
+const expanded = ref(true)
 
-const navStatic = 'px-3 py-2 rounded-md hover:bg-blue-900 hover:text-white'
-const navActive = 'bg-blue-900 text-white'
+function toggleExpanded() {
+  expanded.value = !expanded.value
+}
+
+watch(
+  () => route.fullPath,
+  (newPath, oldPath) => {
+    expanded.value = false
+  },
+)
 </script>
 
 <template>
-  <aside class="min-w-48 w-48 bg-blue-950 text-gray-100 flex flex-col justify-between px-4">
-    <!-- TODO: Replace with Logo -->
-    <h1 class="p-4 text-4xl font-bold text-center">Bizzi</h1>
-
-    <nav class="flex flex-col space-y-1">
-      <router-link
-        v-for="item in items"
-        :activeClass="navActive"
-        :key="item"
-        :to="item.url"
-        :class="navStatic"
-      >
-        <i :class="`pi ${item.icon} mr-4`"></i>
-        {{ item.label }}
-      </router-link>
-    </nav>
-    <div class="py-4 border-t border-gray-700">
-      <nav class="flex flex-col">
-        <router-link
-          :to="account.url"
-          :activeClass="navActive"
-          :class="[navStatic, isActive(account.url) ? navActive : '']"
+  <div class="sticky top-0 z-50 sm:flex sm:h-screen">
+    <aside
+      :class="`bg-blue-950 text-gray-100 flex flex-col sm:px-4 sm:py-8 sm:gap-10 ${
+        expanded ? 'sm:min-w-48' : ''
+      }`"
+    >
+      <div class="flex justify-between items-center min-h-12 px-3">
+        <button @click="toggleExpanded" class="pi pi-bars hover:cursor-pointer" />
+        <!-- TODO: Replace with Logo -->
+        <header
+          :class="`text-xl sm:text-4xl font-bold text-center  ${
+            expanded ? 'sm:block' : 'sm:hidden'
+          }`"
         >
-          <i class="pi pi-user mr-4"></i>
-          My Account
-        </router-link>
-      </nav>
-    </div>
-  </aside>
+          Bizzi
+        </header>
+      </div>
+      <div :class="`${expanded ? '' : 'hidden'} mb-2 sm:flex sm:flex-1 sm:flex-col`">
+        <NavList
+          v-model="expanded"
+          :navLinks="mainNav"
+          class="flex flex-1 flex-col justify-center"
+        />
+        <div class="min-h-0.5 bg-gray-200/10 my-4 sm:my-8" />
+        <NavList v-model="expanded" :navLinks="bottomNav" />
+      </div>
+    </aside>
+  </div>
 </template>
-
-<style></style>

@@ -82,29 +82,28 @@ onMounted(async () => {
 <!-- TODO: Make spinner reusable component  -->
 
 <template>
-  <div
-    v-if="cards.length === 0 && !loading"
-    class="flex flex-col p-4 min-w-60 bg-gray-100/50 justify-around"
-  >
-    <div class="text-center space-y-4 mx-6">
-      <h3 class="text-md">You have no cards</h3>
-      <ActionButton @click="createCard()" text="Create New Card" />
-    </div>
-  </div>
-
-  <div v-else class="flex flex-col p-4 min-w-60 bg-gray-100/50">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl text-gray-600 font-semibold">My Cards</h2>
-      <ActionButton @click="createCard()" text="+ Add" />
+  <div class="sm:min-w-60">
+    <div v-if="cards.length === 0 && !loading" class="flex flex-col p-4 justify-around">
+      <div class="text-center space-y-4 mx-6">
+        <h3 class="text-md">You have no cards</h3>
+        <ActionButton @click="createCard()" text="Create New Card" />
+      </div>
     </div>
 
-    <ul>
-      <li v-for="card in cards" :key="card" class="mb-4">
-        <router-link :to="{ name: 'card-detail', params: { id: card.uuid } }">
-          <CardPreview :card="card" />
-        </router-link>
-      </li>
-    </ul>
+    <div v-else class="flex flex-col p-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl text-gray-600 font-semibold">My Cards</h2>
+        <ActionButton @click="createCard()" text="+ Add" />
+      </div>
+
+      <ul>
+        <li v-for="card in cards" :key="card" class="mb-4">
+          <router-link :to="{ name: 'card-detail', params: { id: card.uuid } }">
+            <CardPreview :card="card" />
+          </router-link>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
