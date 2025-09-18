@@ -70,15 +70,19 @@ export function useAuth() {
     }
   }
 
-  const checkAuth = async () => {
+  const checkAuth = async (forceRefresh = false) => {
     isCheckingAuth.value = true
 
     try {
-      // First try localStorage
-      const savedUser = localStorage.getItem('user')
-      if (savedUser) {
-        user.value = JSON.parse(savedUser)
-        return
+      // TODO: if this fails a few time, let's kill it. Otherwise a user can be
+      // stuck with a false-positive auth session
+      //
+      if (!forceRefresh) {
+        const savedUser = localStorage.getItem('user')
+        if (savedUser) {
+          user.value = JSON.parse(savedUser)
+          return
+        }
       }
 
       // No local user → check with server

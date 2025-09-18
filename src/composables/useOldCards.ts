@@ -92,7 +92,7 @@ export function useCards() {
     try {
       // Create a copy to avoid mutating the original formData
       const dataToSave = { ...formData }
-      
+
       // Handle phone number
       if (dataToSave.phoneNumber) {
         dataToSave.phone = dataToSave.phoneNumber
@@ -102,11 +102,20 @@ export function useCards() {
       delete dataToSave.phoneNumber
 
       // Convert empty strings to null for nullable fields, filter out non-model fields
-      const nullableFields = ['name', 'company', 'job_title', 'email', 'website', 'bio', 'location', 'phone']
+      const nullableFields = [
+        'name',
+        'company',
+        'job_title',
+        'email',
+        'website',
+        'bio',
+        'location',
+        'phone',
+      ]
       const booleanFields = ['public']
       const stringFields = ['slug']
       const filteredData: Record<string, any> = {}
-      
+
       for (const [key, value] of Object.entries(dataToSave)) {
         if (key !== 'pendingPictureFile') {
           if (nullableFields.includes(key)) {
@@ -132,7 +141,7 @@ export function useCards() {
         if (isCreating) {
           cards.value.push(updatedCard)
           selectedCard.value = updatedCard
-          
+
           // If there's a pending picture file, upload it now
           if (pendingPictureFile) {
             try {
@@ -150,14 +159,17 @@ export function useCards() {
                 }
               }
 
-              const picResponse = await fetch(`${API_BASE}/api/cards/${updatedCard.uuid}/picture/`, {
-                method: 'PUT',
-                credentials: 'include',
-                headers: {
-                  'X-CSRFToken': csrfToken,
+              const picResponse = await fetch(
+                `${API_BASE}/api/cards/${updatedCard.uuid}/picture/`,
+                {
+                  method: 'PUT',
+                  credentials: 'include',
+                  headers: {
+                    'X-CSRFToken': csrfToken,
+                  },
+                  body: formData,
                 },
-                body: formData,
-              })
+              )
 
               if (picResponse.ok) {
                 const picData = await picResponse.json()
@@ -178,7 +190,7 @@ export function useCards() {
             cards.value[index] = updatedCard
           }
           selectedCard.value = updatedCard
-          
+
           // If there's a pending picture file for existing card, upload it now
           if (pendingPictureFile) {
             try {
@@ -196,14 +208,17 @@ export function useCards() {
                 }
               }
 
-              const picResponse = await fetch(`${API_BASE}/api/cards/${updatedCard.uuid}/picture/`, {
-                method: 'PUT',
-                credentials: 'include',
-                headers: {
-                  'X-CSRFToken': csrfToken,
+              const picResponse = await fetch(
+                `${API_BASE}/api/cards/${updatedCard.uuid}/picture/`,
+                {
+                  method: 'PUT',
+                  credentials: 'include',
+                  headers: {
+                    'X-CSRFToken': csrfToken,
+                  },
+                  body: formData,
                 },
-                body: formData,
-              })
+              )
 
               if (picResponse.ok) {
                 const picData = await picResponse.json()
@@ -232,7 +247,7 @@ export function useCards() {
           response.status,
           response.statusText,
         )
-        
+
         // Handle 400 errors with detail message
         if (response.status === 400) {
           try {
@@ -244,7 +259,7 @@ export function useCards() {
             console.error('Failed to parse error response:', parseError)
           }
         }
-        
+
         return { success: false, error: 'Failed to save card' }
       }
     } catch (error) {
@@ -385,24 +400,11 @@ export function useCards() {
     }
   }
 
-  const deleteCard = async (): Promise<{ success: boolean; error?: string }> => {
-    if (!card.value?.uuid) {
-      return { success: false, error: 'No card to delete' }
-    }
-
+  const deleteCard = async (card_uuid: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await cardRequest(card.value.uuid, 'DELETE', {})
-      
+      const response = await cardRequest(card_uuid, 'DELETE', {})
+
       if (response.ok) {
-        // Remove card from cards array
-        const cardIndex = cards.value.findIndex(c => c.uuid === card.value?.uuid)
-        if (cardIndex !== -1) {
-          cards.value.splice(cardIndex, 1)
-        }
-        
-        // Clear selected card
-        selectedCard.value = null
-        
         return { success: true }
       } else {
         console.error('Failed to delete card:', response.status, response.statusText)
@@ -421,7 +423,7 @@ export function useCards() {
     card,
     isLoading,
     cardLimitError,
-    
+
     // Actions
     fetchCards,
     selectCard,

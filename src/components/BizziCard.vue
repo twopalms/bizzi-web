@@ -13,12 +13,17 @@ defineProps({
   },
 })
 
-const { card, loading, fetchCard, hasContactInfo } = useCards()
 const route = useRoute()
+const { card, loading, fetchCard, hasContactInfo } = useCards(route.params.id)
+
 const contactItemIndex = ref(null)
 const linkItemIndex = ref(null)
 
-watch(() => route.params.id, fetchCard, { immediate: true })
+watch(
+  () => route.params.id,
+  (newId, oldId) => fetchCard(newId),
+  { immediate: true },
+)
 
 function getFavicon(url: string) {
   try {
@@ -52,7 +57,10 @@ function cleanContactInfo(data) {
 </script>
 
 <template>
-  <div v-if="!loading" class="flex flex-col max-w-120 rounded-lg shadow-lg shadow-black/40">
+  <div
+    v-if="!loading"
+    class="flex flex-col max-w-120 rounded-lg shadow-lg shadow-black/40 bg-white"
+  >
     <div
       class="bg-[var(--cardColor)] flex items-center justify-end min-h-36 max-h-36 rounded-t-lg"
       :style="`--cardColor: ${color}`"

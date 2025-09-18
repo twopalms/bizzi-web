@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import SignupView from '../views/SignupView.vue'
 import LoginView from '../views/LoginView.vue'
+import AccountView from '../views/AccountView.vue'
 import { useAuth } from '../composables/useAuth'
 
 const router = createRouter({
@@ -15,7 +16,7 @@ const router = createRouter({
         {
           path: ':id',
           name: 'card-detail',
-          component: () => import('@/components/CardDetail.vue'),
+          component: () => import('@/views/CardDetailView.vue'),
         },
       ],
     },
@@ -28,7 +29,7 @@ const router = createRouter({
     {
       path: '/account',
       name: 'account',
-      components: {},
+      component: AccountView,
       meta: { requiresAuth: true },
     },
     {
