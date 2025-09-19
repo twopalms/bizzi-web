@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useCards } from '../composables/useCards.ts'
+// import { useCards } from '../composables/useCards.ts'
+import { useCardManager } from '../composables/useCardManager.ts'
 import { useClipboard } from '@vueuse/core'
 
 const { text, copy, copied } = useClipboard()
@@ -14,16 +15,25 @@ defineProps({
 })
 
 const route = useRoute()
-const { card, loading, fetchCard, hasContactInfo } = useCards(route.params.id)
+const { activeCard: card } = useCardManager()
+// const { card, loading, fetchCard, hasContactInfo } = useCards(route.params.id)
 
 const contactItemIndex = ref(null)
 const linkItemIndex = ref(null)
 
-watch(
-  () => route.params.id,
-  (newId, oldId) => fetchCard(newId),
-  { immediate: true },
-)
+function hasContactInfo() {
+  if (card) {
+    return card.value.email || card.value.phone_fmt || card.value.website
+  } else {
+    return null
+  }
+}
+
+// watch(
+//   () => route.params.id,
+//   (newId) => fetchCard(newId),
+//   { immediate: true },
+// )
 
 function getFavicon(url: string) {
   try {
