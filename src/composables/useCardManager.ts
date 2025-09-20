@@ -1,25 +1,51 @@
-import { computed, ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth.ts'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
 
-const cardList = ref([])
-const activeCardIndex = ref(null)
+const { makeAuthenticatedRequest, user } = useAuth()
+
+async function fetchCard(id: string): Card {
+  error.value = null
+  loading.value = true
+
+  // TODO: handle response codes
+
+  let data = null
+
+  try {
+    const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/`)
+    data = await response.json()
+  } catch (err) {
+    console.error(err)
+    // error.value = err.toString()
+  } finally {
+    // loading.value = false
+  }
+
+  return data
+}
+
 const loading = ref(false)
 const error = ref(null)
 
+const cardList = ref([])
+const activeCard = ref(null)
+const activeCardIndex = ref(null)
+
+watchEffect(async () => {
+  if (activeCardIndex.value === null) {
+    activeCard.value = null
+    return
+  }
+
+  const cardId = cardList.value[activeCardIndex.value].uuid
+  activeCard.value = await fetchCard(cardId)
+})
+
 export function useCardManager() {
   const route = useRoute()
-  const { makeAuthenticatedRequest, user } = useAuth()
-
-  const activeCard = computed(() => {
-    if (activeCardIndex.value === null) {
-      return null
-    }
-
-    return cardList.value[activeCardIndex.value]
-  })
 
   function isRoot() {
     return route.path == '/cards'
@@ -73,14 +99,13 @@ export function useCardManager() {
         // TODO: handle response codes: 403
         const newCard = await response.json()
         cardList.value.push(newCard)
-        console.log(cardList.value)
         activeCardIndex.value = cardList.value.indexOf(newCard)
       } else {
         error.value = (await response.json()).detail
         return { success: false, error: 'Failed to create card' }
       }
     } catch (err) {
-      console.log(err)
+      console.error(err)
       error.value = err.toString()
     } finally {
       loading.value = false

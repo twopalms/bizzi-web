@@ -1,34 +1,13 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import { useCardManager } from '../composables/useCardManager.ts'
 import ActionButton from '../components/ActionButton.vue'
 import CardPreview from '../components/CardPreview.vue'
 
-const route = useRoute()
-const {
-  activeCardIndex,
-  cardList,
-  createCard,
-  error,
-  fetchCards,
-  isRoot,
-  loading,
-  setActiveCard,
-  setError,
-} = useCardManager()
+const { createCard, error, loading, setActiveCard, setError } = useCardManager()
 
-watch(
-  () => route.path,
-  () => {
-    if (isRoot()) {
-      activeCardIndex.value = null
-    }
-  },
-)
-
-onMounted(async () => {
-  fetchCards()
+defineProps({
+  activeCardIndex: Number,
+  cardList: Array,
 })
 </script>
 

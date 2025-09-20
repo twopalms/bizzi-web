@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-// import { useCards } from '../composables/useCards.ts'
-import { useCardManager } from '../composables/useCardManager.ts'
+import { ref } from 'vue'
 import { useClipboard } from '@vueuse/core'
 
-const { text, copy, copied } = useClipboard()
-
 defineProps({
+  card: Object,
   color: {
     type: String,
     default: '#065f46',
   },
 })
 
-const route = useRoute()
-const { activeCard: card } = useCardManager()
-// const { card, loading, fetchCard, hasContactInfo } = useCards(route.params.id)
+const { copy } = useClipboard()
 
 const contactItemIndex = ref(null)
 const linkItemIndex = ref(null)
@@ -28,12 +22,6 @@ function hasContactInfo() {
     return null
   }
 }
-
-// watch(
-//   () => route.params.id,
-//   (newId) => fetchCard(newId),
-//   { immediate: true },
-// )
 
 function getFavicon(url: string) {
   try {
@@ -67,10 +55,7 @@ function cleanContactInfo(data) {
 </script>
 
 <template>
-  <div
-    v-if="!loading"
-    class="flex flex-col max-w-120 rounded-lg shadow-lg shadow-black/40 bg-white"
-  >
+  <div class="flex flex-col max-w-120 rounded-lg shadow-lg shadow-black/40 bg-white">
     <div
       class="bg-[var(--cardColor)] flex items-center justify-end min-h-36 max-h-36 rounded-t-lg"
       :style="`--cardColor: ${color}`"
