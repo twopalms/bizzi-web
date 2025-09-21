@@ -16,14 +16,14 @@ defineProps({
     <div v-if="!loading && cardList.length === 0" class="flex flex-col p-4 justify-around">
       <div class="text-center space-y-4 mx-6">
         <h3 class="text-md">You have no cards</h3>
-        <ActionButton @click="createCard" text="Create New Card" />
+        <ActionButton @click="createCard">Create New Card"</ActionButton>
       </div>
     </div>
 
     <div v-else class="flex flex-col p-4 gap-4">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl text-gray-600 font-semibold">My Cards</h2>
-        <ActionButton @click="createCard" text="+ Add" />
+        <ActionButton @click="createCard">+ Add</ActionButton>
       </div>
 
       <div

@@ -1,4 +1,4 @@
-import { ref, watchEffect } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth.ts'
 
@@ -34,14 +34,22 @@ const cardList = ref([])
 const activeCard = ref(null)
 const activeCardIndex = ref(null)
 
-watchEffect(async () => {
-  if (activeCardIndex.value === null) {
+watch(activeCardIndex, async (newIndex) => {
+  if (newIndex === null) {
     activeCard.value = null
     return
   }
 
   const cardId = cardList.value[activeCardIndex.value].uuid
   activeCard.value = await fetchCard(cardId)
+})
+
+watch(activeCard, (newCard) => {
+  if (newCard === null) {
+    return
+  }
+
+  cardList.value[activeCardIndex.value] = newCard
 })
 
 export function useCardManager() {

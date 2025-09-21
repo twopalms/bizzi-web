@@ -1,6 +1,5 @@
 <script setup lang="ts">
 defineProps({
-  text: String,
   bgColor: {
     type: String,
     default: '#888fff',
@@ -17,6 +16,6 @@ defineProps({
     class="bg-[var(--bgColor)] hover:bg-[var(--hoverColor)] hover:cursor-pointer text-white font-bold py-2 px-3 rounded-lg"
     :style="`--bgColor: ${bgColor}; --hoverColor: ${hoverColor}`"
   >
-    {{ text }}
+    <slot></slot>
   </button>
 </template>

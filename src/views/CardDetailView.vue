@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-// import { useCards } from '../composables/useCards.ts'
 import { useCardManager } from '../composables/useCardManager.ts'
 import BizziCard from '../components/BizziCard.vue'
 import CardDetailHeader from '../components/CardDetailHeader.vue'
@@ -17,10 +16,10 @@ function toggleIsEditing() {
   isEditing.value = !isEditing.value
 }
 
-// function setIsEditingFalse() {
-//   console.log(card.value)
-//   isEditing.value = false
-// }
+function handleSave() {
+  console.log('TODO: Save Card')
+  isEditing.value = false
+}
 
 async function handleDelete() {
   await deleteCard(route.params.id)
@@ -32,11 +31,17 @@ watch(
   ([newId]) => {
     if (cardList.value.length > 0) {
       const index = cardList.value.findIndex((element) => element.uuid == newId)
+      // TODO: check if editing, and if so, ask for confirmation
+      isEditing.value = false
       setActiveCard(index)
     }
   },
   { immediate: true },
 )
+
+onUnmounted(() => {
+  setActiveCard(null)
+})
 </script>
 
 <template>
@@ -44,6 +49,7 @@ watch(
     <CardDetailHeader
       @toggle-is-editing="toggleIsEditing"
       @submit-delete="handleDelete"
+      @submit-save="handleSave"
       :isEditing="isEditing"
     />
 
@@ -55,7 +61,7 @@ watch(
       </div>
 
       <div v-if="isEditing" class="flex-2 h-full overflow-y-auto py-6 pr-6 pl-3">
-        <CardEditForm />
+        <CardEditForm v-model="activeCard" />
       </div>
     </div>
   </div>

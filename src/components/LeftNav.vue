@@ -17,13 +17,12 @@ function toggleExpanded() {
 }
 
 function handleFocusOut() {
-  console.log('here')
   expanded.value = false
 }
 
 watch(
   () => route.fullPath,
-  (newPath, oldPath) => {
+  () => {
     expanded.value = false
   },
 )
