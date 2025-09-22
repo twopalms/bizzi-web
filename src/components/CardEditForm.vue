@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import CardEditSection from '../components/CardEditSection.vue'
 
-const card = defineModel<string | null>()
-
-// import { useCardManager } from '../composables/useCardManager.ts'
-// const { activeCard } = useCardManager()
-
-// defineProps({
-//   card: Object,
-// })
+const card = defineModel<object | null>()
 </script>
 
 <template>
@@ -38,6 +31,7 @@ const card = defineModel<string | null>()
             type="text"
             placeholder="Consultant, Designer, Software Engineer, etc."
             class="flex flex-grow bg-gray-100 rounded p-2 shadow-sm"
+            v-model="card.job_title"
           />
         </div>
         <div class="flex flex-col gap-1">
@@ -46,6 +40,7 @@ const card = defineModel<string | null>()
             type="text"
             placeholder="Acme Industries"
             class="flex flex-grow bg-gray-100 rounded p-2 shadow-sm"
+            v-model="card.company"
           />
         </div>
         <div class="flex flex-col gap-1">
@@ -54,6 +49,7 @@ const card = defineModel<string | null>()
             type="text"
             placeholder="City, State or County"
             class="flex flex-grow bg-gray-100 rounded p-2 shadow-sm"
+            v-model="card.location"
           />
         </div>
       </div>

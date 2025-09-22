@@ -30,9 +30,10 @@ async function fetchCard(id: string): Card {
 const loading = ref(false)
 const error = ref(null)
 
-const cardList = ref([])
 const activeCard = ref(null)
 const activeCardIndex = ref(null)
+const cardList = ref([])
+// const isEditing = ref(false)
 
 watch(activeCardIndex, async (newIndex) => {
   if (newIndex === null) {
@@ -66,6 +67,10 @@ export function useCardManager() {
   function setError(value) {
     error.value = value
   }
+
+  // function toggleIsEditing() {
+  //   isEditing.value = !isEditing.value
+  // }
 
   async function fetchCards() {
     // TODO: handle response codes
@@ -127,9 +132,11 @@ export function useCardManager() {
     createCard,
     error,
     fetchCards,
+    // isEditing,
     isRoot,
     loading,
     setActiveCard,
     setError,
+    // toggleIsEditing,
   }
 }

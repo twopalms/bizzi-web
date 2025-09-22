@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from 'vue'
+import { onUnmounted, toRaw, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCardManager } from '../composables/useCardManager.ts'
 import BizziCard from '../components/BizziCard.vue'
@@ -11,9 +11,11 @@ const router = useRouter()
 const { activeCard, cardList, setActiveCard } = useCardManager()
 
 const isEditing = ref(false)
+const mutableCard = ref(null)
 
-function toggleIsEditing() {
-  isEditing.value = !isEditing.value
+function handleCancel() {
+  isEditing.value = false
+  mutableCard.value = structuredClone(toRaw(activeCard.value))
 }
 
 function handleSave() {
@@ -25,6 +27,14 @@ async function handleDelete() {
   await deleteCard(route.params.id)
   router.push('/cards')
 }
+
+watch(
+  activeCard,
+  (newCard) => {
+    mutableCard.value = structuredClone(toRaw(newCard))
+  },
+  { initial: true },
+)
 
 watch(
   () => [route.params.id, cardList.value],
@@ -47,7 +57,8 @@ onUnmounted(() => {
 <template>
   <div class="w-full h-screen flex flex-col">
     <CardDetailHeader
-      @toggle-is-editing="toggleIsEditing"
+      @submit-edit="() => (isEditing = true)"
+      @submit-cancel="handleCancel"
       @submit-delete="handleDelete"
       @submit-save="handleSave"
       :isEditing="isEditing"
@@ -56,12 +67,18 @@ onUnmounted(() => {
     <div class="flex flex-1 min-h-0">
       <div class="flex flex-2 items-center justify-center min-h-0">
         <div class="w-full h-full overflow-y-auto py-6 pl-6 pr-3">
-          <BizziCard v-if="activeCard" color="#4fd4d6" :card="activeCard" />
+          <BizziCard
+            v-if="activeCard"
+            color="#4fd4d6"
+            :card="activeCard"
+            :mutableCard="mutableCard"
+            :showMutable="isEditing"
+          />
         </div>
       </div>
 
       <div v-if="isEditing" class="flex-2 h-full overflow-y-auto py-6 pr-6 pl-3">
-        <CardEditForm v-model="activeCard" />
+        <CardEditForm v-if="mutableCard" v-model="mutableCard" />
       </div>
     </div>
   </div>

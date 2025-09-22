@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useClipboard } from '@vueuse/core'
 
-defineProps({
+const props = defineProps({
   card: Object,
+  mutableCard: Object,
+  showMutable: Boolean,
   color: {
     type: String,
     default: '#065f46',
@@ -15,8 +17,12 @@ const { copy } = useClipboard()
 const contactItemIndex = ref(null)
 const linkItemIndex = ref(null)
 
+const visibleCard = computed(() => {
+  return props.showMutable ? props.mutableCard : props.card
+})
+
 function hasContactInfo() {
-  if (card) {
+  if (visibleCard.value) {
     return card.value.email || card.value.phone_fmt || card.value.website
   } else {
     return null
@@ -60,15 +66,19 @@ function cleanContactInfo(data) {
       class="bg-[var(--cardColor)] flex items-center justify-end min-h-36 max-h-36 rounded-t-lg"
       :style="`--cardColor: ${color}`"
     >
-      <img :src="card.picture" :alt="card.name" class="rounded-full w-auto h-36 m-4 p-4" />
+      <img
+        :src="visibleCard.picture"
+        :alt="visibleCard.name"
+        class="rounded-full w-auto h-36 m-4 p-4"
+      />
     </div>
     <div class="p-6">
-      <h3 v-if="card.name" class="text-4xl font-semibold">{{ card.name }}</h3>
-      <div v-if="card.job_title" class="text-3xl mb-4">{{ card.job_title }}</div>
-      <div v-if="card.company" class="text-2xl">{{ card.company }}</div>
-      <div v-if="card.location" class="text-xl">{{ card.location }}</div>
-      <div v-if="card.bio" class="italic border-l-2 border-gray-950/30 my-6 pl-4 py-2">
-        {{ card.bio }}
+      <h3 v-if="visibleCard.name" class="text-4xl font-semibold">{{ visibleCard.name }}</h3>
+      <div v-if="visibleCard.job_title" class="text-3xl mb-4">{{ visibleCard.job_title }}</div>
+      <div v-if="visibleCard.company" class="text-2xl">{{ visibleCard.company }}</div>
+      <div v-if="visibleCard.location" class="text-xl">{{ visibleCard.location }}</div>
+      <div v-if="visibleCard.bio" class="italic border-l-2 border-gray-950/30 my-6 pl-4 py-2">
+        {{ visibleCard.bio }}
       </div>
       <div v-if="hasContactInfo">
         <div
@@ -79,7 +89,7 @@ function cleanContactInfo(data) {
           @click="copy(item.value)"
           @mouseover="contactItemIndex = index"
           @mouseleave="contactItemIndex = null"
-          v-for="(item, index) in cleanContactInfo(card)"
+          v-for="(item, index) in cleanContactInfo(visibleCard)"
           :key="index"
           class="flex py-2 items-center hover:ring-1 hover:ring-[var(--borderColor)] hover:bg-[var(--bgColor)] rounded-lg cursor-pointer"
           :style="`--borderColor: ${color}80; --bgColor: ${color}10`"
@@ -97,7 +107,7 @@ function cleanContactInfo(data) {
           <i v-if="contactItemIndex == index" class="pi pi-copy text-sm flex-1 text-right mx-4"></i>
         </div>
       </div>
-      <div v-if="card.links.length !== 0">
+      <div v-if="visibleCard.links.length !== 0">
         <div
           class="flex flex-col bg-[var(--cardColor)] h-0.5 my-4"
           :style="`--cardColor: ${color}`"
@@ -107,7 +117,7 @@ function cleanContactInfo(data) {
             @click="copy(link.url)"
             @mouseover="linkItemIndex = index"
             @mouseleave="linkItemIndex = null"
-            v-for="(link, index) in card.links"
+            v-for="(link, index) in visibleCard.links"
             :key="index"
             class="flex py-2 items-center hover:ring-1 hover:ring-[var(--borderColor)] hover:bg-[var(--bgColor)] rounded-lg cursor-pointer"
             :style="`--borderColor: ${color}80; --bgColor: ${color}10`"
