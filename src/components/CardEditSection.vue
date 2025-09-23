@@ -23,9 +23,10 @@ defineProps({
         <h4 class="font-semibold">{{ title }}</h4>
       </div>
     </div>
-    <!-- <div class="bg-gray-300 h-0.5 mt-4" /> -->
     <div v-if="expanded" class="pt-4 mx-2">
-      <slot></slot>
+      <div class="flex flex-col gap-4">
+        <slot></slot>
+      </div>
     </div>
   </div>
 </template>

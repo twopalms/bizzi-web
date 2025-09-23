@@ -77,7 +77,10 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div v-if="isEditing" class="flex-2 h-full overflow-y-auto py-6 pr-6 pl-3">
+      <div
+        v-if="isEditing"
+        class="flex-2 h-full overflow-y-auto bg-gray-100 border-l-2 border-gray-300 pl-3 pb-20"
+      >
         <CardEditForm v-if="mutableCard" v-model="mutableCard" />
       </div>
     </div>

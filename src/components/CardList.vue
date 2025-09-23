@@ -12,7 +12,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="sm:min-w-60">
+  <div class="border-r-2 border-gray-300 sm:min-w-60">
     <div v-if="!loading && cardList.length === 0" class="flex flex-col p-4 justify-around">
       <div class="text-center space-y-4 mx-6">
         <h3 class="text-md">You have no cards</h3>

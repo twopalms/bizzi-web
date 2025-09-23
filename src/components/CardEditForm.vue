@@ -1,13 +1,47 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
+import InputContainer from '../components/InputContainer.vue'
 import CardEditSection from '../components/CardEditSection.vue'
 
 const card = defineModel<object | null>()
+const publicUrl = computed(() => {
+  return `https://bizzi.com/${card.value.slug}`
+})
+
+const basicInfoForm = [
+  { label: 'Full Name', placeholder: 'Enter your full name', prop: 'name', element: 'input' },
+  {
+    label: 'Job Title',
+    placeholder: 'Designer, Personal Chef, Consultant, etc.',
+    prop: 'job_title',
+    element: 'input',
+  },
+  { label: 'Company', placeholder: 'Acme Industries', prop: 'company', element: 'input' },
+  {
+    label: 'Location',
+    placeholder: 'City, State, County, etc.',
+    prop: 'location',
+    element: 'input',
+  },
+  { label: 'Bio', placeholder: 'Tell people about yourself', prop: 'bio', element: 'textarea' },
+]
+
+const contactInfoForm = [
+  { label: 'Email', placeholder: 'john@example.com', prop: 'email', element: 'input' },
+  { label: 'Phone', placeholder: '(555) 123-4567', prop: 'phone', element: 'input' },
+  { label: 'Website', placeholder: 'https://www.example.com', prop: 'website', element: 'input' },
+]
+
+const validateSlug = (text) => {
+  const pattern = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/
+  if (!pattern.test(text)) {
+    return 'Only lowercase letters, numbers, and hyphens are allowed. May not start or end with hyphen'
+  }
+}
 </script>
 
 <template>
-  <div
-    class="flex flex-1 flex-col bg-white border-1 border-gray-300 rounded-lg shadow-lg shadow-black/40 p-2"
-  >
+  <div class="flex flex-1 flex-col p-2">
     <!-- <CardEditSection title="Profile Picture"> -->
     <!--   <label>Profile Picture</label> -->
     <!--   <ActionButton bgColor="#d1d1d1" hoverColor="#e1e1e1" class="h-20 border-gray-500 border"> -->
@@ -15,46 +49,39 @@ const card = defineModel<object | null>()
     <!--   </ActionButton> -->
     <!-- </CardEditSection> -->
     <CardEditSection title="Basic Information">
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-1">
-          <label class="font-medium">Full Name</label>
-          <input
-            type="text"
-            placeholder="Enter your full name"
-            class="flex flex-grow bg-gray-100 rounded p-2 shadow-sm"
-            v-model="card.name"
-          />
-        </div>
-        <div class="flex flex-col gap-1">
-          <label class="font-medium">Job Title</label>
-          <input
-            type="text"
-            placeholder="Consultant, Designer, Software Engineer, etc."
-            class="flex flex-grow bg-gray-100 rounded p-2 shadow-sm"
-            v-model="card.job_title"
-          />
-        </div>
-        <div class="flex flex-col gap-1">
-          <label class="font-medium">Company</label>
-          <input
-            type="text"
-            placeholder="Acme Industries"
-            class="flex flex-grow bg-gray-100 rounded p-2 shadow-sm"
-            v-model="card.company"
-          />
-        </div>
-        <div class="flex flex-col gap-1">
-          <label class="font-medium">Location</label>
-          <input
-            type="text"
-            placeholder="City, State or County"
-            class="flex flex-grow bg-gray-100 rounded p-2 shadow-sm"
-            v-model="card.location"
-          />
-        </div>
+      <InputContainer
+        v-for="item in basicInfoForm"
+        v-model="card[item.prop]"
+        :key="item.prop"
+        :label="item.label"
+        :placeholder="item.placeholder"
+        :element="item.element"
+      />
+    </CardEditSection>
+    <CardEditSection title="Contact Information">
+      <InputContainer
+        v-for="item in contactInfoForm"
+        v-model="card[item.prop]"
+        :key="item.prop"
+        :label="item.label"
+        :placeholder="item.placeholder"
+        :element="item.element"
+      />
+    </CardEditSection>
+    <CardEditSection title="Card Options">
+      <InputContainer
+        label="Public URL"
+        placeholder="your-custom-url"
+        :debounce="0"
+        v-model="card.slug"
+        :validator="validateSlug"
+      />
+      <div class="text-sm">
+        <label>Preview: </label>
+        <a :href="publicUrl" class="hover:cursor-pointer hover:underline hover:text-blue-800"
+          >https://bizzi.com/directory/{{ card.slug }}</a
+        >
       </div>
     </CardEditSection>
-    <CardEditSection title="Contact Information" />
-    <CardEditSection title="Card Options" />
   </div>
 </template>
