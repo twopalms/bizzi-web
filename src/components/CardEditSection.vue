@@ -20,7 +20,7 @@ defineProps({
         :class="{ 'rotate-90': expanded }"
       />
       <div class="flex flex-grow border-b border-gray-300 py-2">
-        <h4 class="font-semibold">{{ title }}</h4>
+        <h4 class="font-semibold text-md">{{ title }}</h4>
       </div>
     </div>
     <div v-if="expanded" class="pt-4 mx-2">

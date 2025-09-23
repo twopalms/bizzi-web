@@ -44,6 +44,7 @@ watch(text, (newValue) => {
     />
     <textarea
       @blur="handleBlur"
+      rows="5"
       v-else-if="element == 'textarea'"
       class="flex flex-grow bg-white rounded p-2 shadow-sm"
       v-model="text"

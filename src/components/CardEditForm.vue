@@ -78,7 +78,7 @@ const validateSlug = (text) => {
       />
       <div class="text-sm">
         <label>Preview: </label>
-        <a :href="publicUrl" class="hover:cursor-pointer hover:underline hover:text-blue-800"
+        <a :href="publicUrl" class="hover:cursor-pointer hover:underline text-blue-800"
           >https://bizzi.com/directory/{{ card.slug }}</a
         >
       </div>
