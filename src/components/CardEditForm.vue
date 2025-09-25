@@ -41,7 +41,7 @@ const validateSlug = (text) => {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col p-2">
+  <div class="flex flex-1 flex-col">
     <!-- <CardEditSection title="Profile Picture"> -->
     <!--   <label>Profile Picture</label> -->
     <!--   <ActionButton bgColor="#d1d1d1" hoverColor="#e1e1e1" class="h-20 border-gray-500 border"> -->
