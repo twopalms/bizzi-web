@@ -5,7 +5,7 @@ defineProps({
   isEditing: Boolean,
 })
 
-defineEmits(['submitDelete', 'submitSave', 'submitEdit', 'submitCancel'])
+defineEmits(['submitSave', 'submitEdit', 'submitCancel'])
 </script>
 
 <template>
@@ -20,13 +20,5 @@ defineEmits(['submitDelete', 'submitSave', 'submitEdit', 'submitCancel'])
     </ActionButton>
     <ActionButton v-if="!isEditing" @click="$emit('submitEdit')">Edit</ActionButton>
     <ActionButton v-else @click="$emit('submitSave')">Save</ActionButton>
-    <!-- TODO: move this to the card options panel --->
-    <!-- <ActionButton -->
-    <!--   @click="$emit('submitDelete')" -->
-    <!--   bgColor="#FF5F57" -->
-    <!--   hoverColor="#9C0203" -->
-    <!--   text="Delete" -->
-    <!--   class="justify-self-end" -->
-    <!-- /> -->
   </div>
 </template>

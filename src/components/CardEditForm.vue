@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import InputContainer from '../components/InputContainer.vue'
+import { computed } from 'vue'
+import ActionButton from '../components/ActionButton.vue'
 import CardEditSection from '../components/CardEditSection.vue'
+import InputContainer from '../components/InputContainer.vue'
 
 const card = defineModel<object | null>()
 const publicUrl = computed(() => {
@@ -28,6 +29,7 @@ const basicInfoForm = [
 
 const contactInfoForm = [
   { label: 'Email', placeholder: 'john@example.com', prop: 'email', element: 'input' },
+  // TODO: get phone field working!
   { label: 'Phone', placeholder: '(555) 123-4567', prop: 'phone', element: 'input' },
   { label: 'Website', placeholder: 'https://www.example.com', prop: 'website', element: 'input' },
 ]
@@ -38,6 +40,8 @@ const validateSlug = (text) => {
     return 'Only lowercase letters, numbers, and hyphens are allowed. May not start or end with hyphen'
   }
 }
+
+defineEmits(['submitDelete'])
 </script>
 
 <template>
@@ -76,11 +80,19 @@ const validateSlug = (text) => {
         v-model="card.slug"
         :validator="validateSlug"
       />
-      <div class="text-sm">
-        <label>Preview: </label>
+      <div class="flex flex-col text-sm">
         <a :href="publicUrl" class="hover:cursor-pointer hover:underline text-blue-800"
-          >https://bizzi.com/directory/{{ card.slug }}</a
+          >https://bizzicard.com/directory/{{ card.slug }}</a
         >
+      </div>
+      <div class="flex justify-between border border-red-400/50 p-2 mt-4 rounded-md">
+        <div class="flex flex-col text-sm">
+          <strong>Delete this card</strong>
+          <div>Permanently delete this card. This cannot be undone.</div>
+        </div>
+        <ActionButton @click="$emit('submitDelete')" bgColor="#FF5F57" hoverColor="#9C0203">
+          Delete
+        </ActionButton>
       </div>
     </CardEditSection>
   </div>

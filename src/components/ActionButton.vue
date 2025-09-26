@@ -2,11 +2,11 @@
 defineProps({
   bgColor: {
     type: String,
-    default: '#888fff',
+    default: '#20265c',
   },
   hoverColor: {
     type: String,
-    default: '#666eee',
+    default: '#353b78',
   },
 })
 </script>
