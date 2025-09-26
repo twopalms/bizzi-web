@@ -33,7 +33,6 @@ const error = ref(null)
 const activeCard = ref(null)
 const activeCardIndex = ref(null)
 const cardList = ref([])
-// const isEditing = ref(false)
 
 watch(activeCardIndex, async (newIndex) => {
   if (newIndex === null) {
@@ -67,10 +66,6 @@ export function useCardManager() {
   function setError(value) {
     error.value = value
   }
-
-  // function toggleIsEditing() {
-  //   isEditing.value = !isEditing.value
-  // }
 
   async function fetchCards() {
     // TODO: handle response codes
@@ -125,18 +120,42 @@ export function useCardManager() {
     }
   }
 
+  async function deleteCard(id: string): Card {
+    error.value = null
+    loading.value = true
+
+    // TODO: handle response codes
+
+    try {
+      const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/`, {
+        method: 'DELETE',
+      })
+
+      console.log(response)
+
+      if (response.ok) {
+        cardList.value.splice(activeCardIndex.value, 1)
+        activeCardIndex.value = null
+      } else {
+        console.warn('Failed to delete card')
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+    }
+  }
+
   return {
     activeCard,
     activeCardIndex,
     cardList,
     createCard,
+    deleteCard,
     error,
     fetchCards,
-    // isEditing,
     isRoot,
     loading,
     setActiveCard,
     setError,
-    // toggleIsEditing,
   }
 }

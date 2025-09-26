@@ -2,25 +2,24 @@
 import { onUnmounted, toRaw, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCardManager } from '../composables/useCardManager.ts'
+import ActionButton from '../components/ActionButton.vue'
 import BizziCard from '../components/BizziCard.vue'
-import CardDetailHeader from '../components/CardDetailHeader.vue'
+// import CardDetailHeader from '../components/CardDetailHeader.vue'
 import CardEditForm from '../components/CardEditForm.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { activeCard, cardList, setActiveCard } = useCardManager()
+const { activeCard, cardList, deleteCard, setActiveCard } = useCardManager()
 
-const isEditing = ref(false)
+const hasPendingChanges = ref(false)
 const mutableCard = ref(null)
 
-function handleCancel() {
-  isEditing.value = false
+function handleReset() {
   mutableCard.value = structuredClone(toRaw(activeCard.value))
 }
 
 function handleSave() {
   console.log('TODO: Save Card')
-  isEditing.value = false
 }
 
 async function handleDelete() {
@@ -41,12 +40,20 @@ watch(
   ([newId]) => {
     if (cardList.value.length > 0) {
       const index = cardList.value.findIndex((element) => element.uuid == newId)
-      // TODO: check if editing, and if so, ask for confirmation
-      isEditing.value = false
+      // TODO: check if pending changes, and if so, ask for confirmation
       setActiveCard(index)
     }
   },
   { immediate: true },
+)
+
+// TODO: debounce this for performance??
+watch(
+  mutableCard,
+  (newCard) => {
+    hasPendingChanges.value = JSON.stringify(newCard) !== JSON.stringify(activeCard.value)
+  },
+  { deep: true },
 )
 
 onUnmounted(() => {
@@ -55,33 +62,33 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full h-screen flex flex-col">
-    <CardDetailHeader
-      @submit-edit="() => (isEditing = true)"
-      @submit-cancel="handleCancel"
-      @submit-delete="handleDelete"
-      @submit-save="handleSave"
-      :isEditing="isEditing"
+  <div class="w-full h-screen">
+    <div
+      class="absolute -z-10 inset-0 h-full w-full bg-[radial-gradient(circle,#73737350_1px,transparent_1px)] bg-[size:10px_10px]"
     />
 
-    <div class="flex flex-1 min-h-0">
-      <div class="flex flex-2 items-center justify-center min-h-0">
-        <div class="w-full h-full overflow-y-auto py-6 pl-6 pr-3">
-          <BizziCard
-            v-if="activeCard"
-            color="#4fd4d6"
-            :card="activeCard"
-            :mutableCard="mutableCard"
-            :showMutable="isEditing"
-          />
-        </div>
+    <div class="flex h-full">
+      <div class="flex flex-grow overflow-y-auto items-center justify-center">
+        <BizziCard
+          v-if="activeCard"
+          color="#4fd4d6"
+          :card="activeCard"
+          :mutableCard="mutableCard"
+        />
       </div>
-
       <div
-        v-if="isEditing"
-        class="flex-2 h-full overflow-y-auto bg-gray-100 border-l-2 border-gray-300 pl-3 pb-20"
+        class="w-100 justify-self-end overscroll-none overflow-y-auto bg-gray-100 border-l-2 border-gray-300"
       >
-        <CardEditForm v-if="mutableCard" v-model="mutableCard" />
+        <div
+          class="flex justify-between items-center h-18 bg-gray-200 px-4 sticky top-0 z-10 border-b border-gray-300"
+        >
+          <h4>Edit your card below</h4>
+          <div class="flex gap-2">
+            <ActionButton @click="handleReset" :enabled="hasPendingChanges"> Reset </ActionButton>
+            <ActionButton @click="handleSave" :enabled="hasPendingChanges"> Save </ActionButton>
+          </div>
+        </div>
+        <CardEditForm v-if="mutableCard" v-model="mutableCard" @submit-delete="handleDelete" />
       </div>
     </div>
   </div>
