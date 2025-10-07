@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   element: {
@@ -12,6 +12,10 @@ const props = defineProps({
     type: Function,
     default: () => '',
   },
+  formatter: {
+    type: Function,
+    default: (value) => value,
+  },
   debounce: {
     type: Number,
     default: 1000,
@@ -20,15 +24,23 @@ const props = defineProps({
 
 const text = defineModel<string>()
 
-const error = ref('')
+// const error = ref('')
 
 function handleBlur() {
   text.value = text.value.trim()
 }
 
-watch(text, (newValue) => {
-  error.value = props.validator(newValue)
+const formatted = computed(() => {
+  return props.formatter(text.value)
 })
+
+const error = computed(() => {
+  return props.validator(text.value)
+})
+
+// watch(text, (newValue) => {
+//   error.value = props.validator(newValue)
+// })
 </script>
 
 <template>

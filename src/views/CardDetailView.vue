@@ -4,12 +4,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { useCardManager } from '../composables/useCardManager.ts'
 import ActionButton from '../components/ActionButton.vue'
 import BizziCard from '../components/BizziCard.vue'
-// import CardDetailHeader from '../components/CardDetailHeader.vue'
 import CardEditForm from '../components/CardEditForm.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { activeCard, cardList, deleteCard, setActiveCard } = useCardManager()
+const { activeCard, cardList, deleteCard, patchCard, setActiveCard } = useCardManager()
 
 const hasPendingChanges = ref(false)
 const mutableCard = ref(null)
@@ -18,11 +17,12 @@ function handleReset() {
   mutableCard.value = structuredClone(toRaw(activeCard.value))
 }
 
-function handleSave() {
-  console.log('TODO: Save Card')
+async function handleSave() {
+  await patchCard(mutableCard.value)
 }
 
 async function handleDelete() {
+  // TODO: add confirmation modal
   await deleteCard(route.params.id)
   router.push('/cards')
 }
@@ -63,10 +63,6 @@ onUnmounted(() => {
 
 <template>
   <div class="w-full h-screen">
-    <div
-      class="absolute -z-10 inset-0 h-full w-full bg-[radial-gradient(circle,#73737350_1px,transparent_1px)] bg-[size:10px_10px]"
-    />
-
     <div class="flex h-full">
       <div class="flex flex-grow overflow-y-auto items-center justify-center">
         <BizziCard

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useClipboard } from '@vueuse/core'
 
-const props = defineProps({
+defineProps({
   card: Object,
   mutableCard: Object,
   color: {
@@ -16,6 +16,14 @@ const { copy } = useClipboard()
 const contactItemIndex = ref(null)
 const linkItemIndex = ref(null)
 
+// const phoneDisplay = computed(() => {
+//   console.log(mutableCard.value)
+//   if (mutableCard.value.phone !== null) {
+//     return 'hello world'
+//   }
+//   return ''
+// })
+//
 function hasContactInfo() {
   if (mutableCard.value) {
     return card.value.email || card.value.phone_fmt || card.value.website
@@ -36,17 +44,17 @@ function getFavicon(url: string) {
 function cleanContactInfo(data) {
   const output = []
 
-  if (data.email != null) {
+  if (data.email) {
     const obj = { name: 'email', icon: 'pi-envelope', value: data.email }
     output.push(obj)
   }
 
-  if (data.phone_fmt != null) {
+  if (data.phone_fmt) {
     const obj = { name: 'phone', icon: 'pi-phone', value: data.phone_fmt }
     output.push(obj)
   }
 
-  if (data.website != null) {
+  if (data.website) {
     const obj = { name: 'website', icon: 'pi-globe', value: data.website }
     output.push(obj)
   }
@@ -63,11 +71,7 @@ function cleanContactInfo(data) {
       class="bg-[var(--cardColor)] flex items-center justify-end min-h-36 max-h-36 rounded-t-lg"
       :style="`--cardColor: ${color}`"
     >
-      <img
-        :src="mutableCard.picture"
-        :alt="mutableCard.name"
-        class="rounded-full w-auto h-36 m-4 p-4"
-      />
+      <img :src="mutableCard.picture" class="rounded-full w-auto h-36 m-4 p-4" />
     </div>
     <div class="p-6">
       <h3 v-if="mutableCard.name" class="text-4xl font-semibold">{{ mutableCard.name }}</h3>

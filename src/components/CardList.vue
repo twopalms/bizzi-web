@@ -1,29 +1,37 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useCardManager } from '../composables/useCardManager.ts'
 import ActionButton from '../components/ActionButton.vue'
 import CardPreview from '../components/CardPreview.vue'
+import FocusModal from '../components/FocusModal.vue'
 
-const { createCard, error, loading, setActiveCard, setError } = useCardManager()
+const showPaywall = ref(false)
+const { activeCardIndex, cardList, createCard, error, loading, setActiveCard, setError } =
+  useCardManager()
 
-defineProps({
-  activeCardIndex: Number,
-  cardList: Array,
-})
+async function handleCreateCard() {
+  // TODO: check user's payment plan
+  if (cardList.value.length == 2) {
+    showPaywall.value = true
+    return
+  }
+  await createCard()
+}
 </script>
 
 <template>
-  <div class="border-r-2 border-gray-300 sm:min-w-60">
+  <div class="h-full border-r-2 border-gray-300 sm:min-w-60">
     <div v-if="!loading && cardList.length === 0" class="flex flex-col p-4 justify-around">
       <div class="text-center space-y-4 mx-6">
         <h3 class="text-md">You have no cards</h3>
-        <ActionButton @click="createCard">Create New Card"</ActionButton>
+        <ActionButton @click="handleCreateCard">Create New Card</ActionButton>
       </div>
     </div>
 
     <div v-else class="flex flex-col p-4 gap-4">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl text-gray-600 font-semibold">My Cards</h2>
-        <ActionButton @click="createCard">+ Add</ActionButton>
+        <ActionButton @click="handleCreateCard">+ Add</ActionButton>
       </div>
 
       <div
@@ -51,4 +59,17 @@ defineProps({
       </ul>
     </div>
   </div>
+  <FocusModal v-model="showPaywall">
+    <!-- TODO: add branding and replace google with pricing page -->
+    <div class="text-center flex flex-col gap-5">
+      <p>Oh no! Free plans only support up to 2 cards.</p>
+      <h3 class="text-lg font-bold">Let's get Bizzi</h3>
+      <p>Subscribe now to create up to 10 business cards</p>
+      <div class="flex-shrink">
+        <a href="https://google.com" target="_blank">
+          <ActionButton> Compare Plans </ActionButton>
+        </a>
+      </div>
+    </div>
+  </FocusModal>
 </template>

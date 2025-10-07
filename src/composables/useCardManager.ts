@@ -93,6 +93,32 @@ export function useCardManager() {
     }
   }
 
+  async function patchCard(data: object): Card {
+    error.value = null
+    loading.value = true
+
+    const id = activeCard.value.uuid
+
+    // TODO: handle response codes
+
+    try {
+      const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      })
+
+      if (response.ok) {
+        activeCard.value = await response.json()
+      } else {
+        // todo: error handling
+        console.warn('Failed to update card')
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+    }
+  }
+
   async function createCard(options: RequestInit = {}) {
     loading.value = true
 
@@ -131,8 +157,6 @@ export function useCardManager() {
         method: 'DELETE',
       })
 
-      console.log(response)
-
       if (response.ok) {
         cardList.value.splice(activeCardIndex.value, 1)
         activeCardIndex.value = null
@@ -155,6 +179,7 @@ export function useCardManager() {
     fetchCards,
     isRoot,
     loading,
+    patchCard,
     setActiveCard,
     setError,
   }

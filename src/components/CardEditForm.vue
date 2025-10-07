@@ -72,7 +72,7 @@ defineEmits(['submitDelete'])
         :element="item.element"
       />
     </CardEditSection>
-    <CardEditSection title="Card Options">
+    <CardEditSection title=" Options">
       <InputContainer
         label="Public URL"
         placeholder="your-custom-url"

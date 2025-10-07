@@ -8,12 +8,22 @@ defineProps({
     type: String,
     default: '#353b78',
   },
+  enabled: {
+    type: Boolean,
+    default: true,
+  },
 })
 </script>
 
 <template>
   <button
-    class="bg-[var(--bgColor)] hover:bg-[var(--hoverColor)] hover:cursor-pointer text-white font-bold py-2 px-3 rounded-lg"
+    :disabled="!enabled"
+    :class="[
+      'text-white font-bold py-2 px-3 rounded-lg',
+      enabled
+        ? 'bg-[var(--bgColor)] hover:bg-[var(--hoverColor)] hover:cursor-pointer'
+        : 'bg-gray-400 cursor-not-allowed opacity-60',
+    ]"
     :style="`--bgColor: ${bgColor}; --hoverColor: ${hoverColor}`"
   >
     <slot></slot>
