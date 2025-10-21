@@ -1,8 +1,56 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { formatIncompletePhoneNumber } from 'libphonenumber-js'
+import parsePhoneNumber from 'libphonenumber-js'
 import ActionButton from '../components/ActionButton.vue'
 import CardEditSection from '../components/CardEditSection.vue'
 import InputContainer from '../components/InputContainer.vue'
+
+// TODO: deal with extensions as a separate input field.
+// libphonenumber-js doesn't know how to deal with it in a single string
+
+// TODO: get country code from browser instead of hardcoding US
+function formatPhone(value: string) {
+  if (!value) return ''
+  return formatIncompletePhoneNumber(value, 'US')
+}
+
+function parsePhone(value: string) {
+  let parsed = ''
+
+  try {
+    parsed = parsePhoneNumber(value, 'US')
+
+    if (parsed === undefined) {
+      parsed = value
+    } else {
+      if (value.startsWith('+')) {
+        parsed = parsed.formatInternational()
+      } else {
+        parsed = parsed.formatNational()
+        // parsed = parsed.number
+      }
+    }
+  } catch {
+    parsed = value
+  }
+
+  return parsed
+}
+
+function validatePhone(value: string) {
+  if (!value) return ''
+  try {
+    const parsed = parsePhoneNumber(value, 'US')
+    if (!parsed.isValid()) {
+      return 'Invalid phone number'
+    }
+  } catch {
+    return 'Invalid phone number'
+  }
+
+  return ''
+}
 
 const card = defineModel<object | null>()
 const publicUrl = computed(() => {
@@ -29,8 +77,15 @@ const basicInfoForm = [
 
 const contactInfoForm = [
   { label: 'Email', placeholder: 'john@example.com', prop: 'email', element: 'input' },
-  // TODO: get phone field working!
-  { label: 'Phone', placeholder: '(555) 123-4567', prop: 'phone', element: 'input' },
+  {
+    label: 'Phone',
+    placeholder: '+1 555 123 4567',
+    prop: 'phone',
+    element: 'input',
+    // formatter: formatPhone,
+    // parser: parsePhone,
+    validator: validatePhone,
+  },
   { label: 'Website', placeholder: 'https://www.example.com', prop: 'website', element: 'input' },
 ]
 
@@ -60,6 +115,9 @@ defineEmits(['submitDelete'])
         :label="item.label"
         :placeholder="item.placeholder"
         :element="item.element"
+        :formatter="item.formatter"
+        :parser="item.parser"
+        :validator="item.validator"
       />
     </CardEditSection>
     <CardEditSection title="Contact Information">
@@ -70,13 +128,15 @@ defineEmits(['submitDelete'])
         :label="item.label"
         :placeholder="item.placeholder"
         :element="item.element"
+        :formatter="item.formatter"
+        :parser="item.parser"
+        :validator="item.validator"
       />
     </CardEditSection>
     <CardEditSection title=" Options">
       <InputContainer
         label="Public URL"
         placeholder="your-custom-url"
-        :debounce="0"
         v-model="card.slug"
         :validator="validateSlug"
       />

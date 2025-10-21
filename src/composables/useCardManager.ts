@@ -1,6 +1,7 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth.ts'
+import parsePhoneNumber from 'libphonenumber-js'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
 
@@ -98,6 +99,11 @@ export function useCardManager() {
     loading.value = true
 
     const id = activeCard.value.uuid
+
+    if (data.phone) {
+      const parsed = parsePhoneNumber(data.phone, 'US').number
+      data.phone = parsed
+    }
 
     // TODO: handle response codes
 

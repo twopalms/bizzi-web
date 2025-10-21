@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useClipboard } from '@vueuse/core'
+import parsePhoneNumber from 'libphonenumber-js'
 
 defineProps({
   card: Object,
@@ -16,17 +17,28 @@ const { copy } = useClipboard()
 const contactItemIndex = ref(null)
 const linkItemIndex = ref(null)
 
-// const phoneDisplay = computed(() => {
-//   console.log(mutableCard.value)
-//   if (mutableCard.value.phone !== null) {
-//     return 'hello world'
-//   }
-//   return ''
-// })
-//
+function formatPhone(value: string) {
+  if (!value) return ''
+
+  try {
+    const parsed = parsePhoneNumber(value)
+    const parsedUS = parsePhoneNumber(value, 'US')
+
+    const target = parsed ? parsed : parsedUS
+
+    if (target.isValid()) {
+      return `+${target.countryCallingCode} ${target.formatNational()}`
+    } else {
+      return value
+    }
+  } catch {
+    return value
+  }
+}
+
 function hasContactInfo() {
   if (mutableCard.value) {
-    return card.value.email || card.value.phone_fmt || card.value.website
+    return card.value.email || card.value.phone || card.value.website
   } else {
     return null
   }
@@ -49,8 +61,12 @@ function cleanContactInfo(data) {
     output.push(obj)
   }
 
-  if (data.phone_fmt) {
-    const obj = { name: 'phone', icon: 'pi-phone', value: data.phone_fmt }
+  if (data.phone) {
+    const obj = {
+      name: 'phone',
+      icon: 'pi-phone',
+      value: formatPhone(data.phone),
+    }
     output.push(obj)
   }
 

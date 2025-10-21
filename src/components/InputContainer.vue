@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
+import PhoneInput from '../components/PhoneInput.vue'
 
 const props = defineProps({
   element: {
@@ -12,54 +13,51 @@ const props = defineProps({
     type: Function,
     default: () => '',
   },
+  parser: {
+    type: Function,
+    default: (value: string) => value,
+  },
   formatter: {
     type: Function,
-    default: (value) => value,
-  },
-  debounce: {
-    type: Number,
-    default: 1000,
+    default: (value: string) => value,
   },
 })
 
 const text = defineModel<string>()
 
-// const error = ref('')
-
-function handleBlur() {
-  text.value = text.value.trim()
-}
-
-const formatted = computed(() => {
-  return props.formatter(text.value)
+const formatted = computed({
+  get() {
+    return props.formatter(text.value)
+  },
+  set(value: string) {
+    text.value = props.parser(value)
+  },
 })
 
-const error = computed(() => {
-  return props.validator(text.value)
-})
-
-// watch(text, (newValue) => {
-//   error.value = props.validator(newValue)
-// })
+const error = computed(() => props.validator(text.value))
 </script>
 
 <template>
   <div class="flex flex-col gap-1">
     <label class="font-medium">{{ label }}</label>
     <input
-      @blur="handleBlur"
       v-if="element == 'input'"
       type="text"
       class="flex flex-grow bg-white rounded p-2 shadow-sm"
-      v-model="text"
+      v-model.trim="formatted"
       :placeholder="placeholder"
     />
+    <PhoneInput
+      v-else-if="element == 'phone'"
+      v-model:text="text"
+      v-model:error="error"
+      :initial="text"
+    />
     <textarea
-      @blur="handleBlur"
       rows="5"
       v-else-if="element == 'textarea'"
       class="flex flex-grow bg-white rounded p-2 shadow-sm"
-      v-model="text"
+      v-model.trim="formatted"
       :placeholder="placeholder"
     />
   </div>
