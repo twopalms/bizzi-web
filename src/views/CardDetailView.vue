@@ -8,7 +8,8 @@ import CardEditForm from '../components/CardEditForm.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { activeCard, cardList, deleteCard, patchCard, setActiveCard } = useCardManager()
+const { activeCard, cardList, deleteCard, patchCard, setActiveCard, uploadProfilePicture } =
+  useCardManager()
 
 const hasPendingChanges = ref(false)
 const mutableCard = ref(null)
@@ -18,6 +19,12 @@ function handleReset() {
 }
 
 async function handleSave() {
+  // If picture is an object, we know its a pending upload
+  if (typeof mutableCard.value.picture === 'object') {
+    console.log('Uploading profile picture')
+    await uploadProfilePicture(mutableCard.value.picture)
+  }
+
   await patchCard(mutableCard.value)
 }
 

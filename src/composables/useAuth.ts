@@ -35,16 +35,41 @@ const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) 
 
   const csrfToken = getCsrfToken()
 
+  const headers = new Headers(options.headers || {})
+
+  // Only default to JSON if there's no Content-Type AND the body is NOT FormData
+  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json')
+  }
+
+  // Always set CSRF
+  headers.set('X-CSRFToken', csrfToken || '')
+
   return fetch(url, {
     ...options,
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken || '',
-      ...options.headers,
-    },
+    headers,
   })
 }
+
+// const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) => {
+//   // Ensure we have a CSRF token
+//   if (!getCsrfToken()) {
+//     await fetchCsrfToken()
+//   }
+//
+//   const csrfToken = getCsrfToken()
+//
+//   return fetch(url, {
+//     ...options,
+//     credentials: 'include',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'X-CSRFToken': csrfToken || '',
+//       ...options.headers,
+//     },
+//   })
+// }
 
 export function useAuth() {
   const login = (userData: any) => {

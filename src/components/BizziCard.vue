@@ -78,6 +78,18 @@ function cleanContactInfo(data) {
   return output
 }
 
+function displayProfilePicture(value: string | object) {
+  if (!value) return
+
+  if (typeof value === 'string') {
+    return value
+  } else if (typeof value === 'object') {
+    return URL.createObjectURL(value)
+  } else {
+    console.error('Bad profile picture object')
+  }
+}
+
 // TODO: make size passable as props
 </script>
 
@@ -87,7 +99,10 @@ function cleanContactInfo(data) {
       class="bg-[var(--cardColor)] flex items-center justify-end min-h-36 max-h-36 rounded-t-lg"
       :style="`--cardColor: ${color}`"
     >
-      <img :src="mutableCard.picture" class="rounded-full w-auto h-36 m-4 p-4" />
+      <img
+        :src="displayProfilePicture(mutableCard.picture)"
+        class="rounded-full w-auto h-36 m-4 p-4"
+      />
     </div>
     <div class="p-6">
       <h3 v-if="mutableCard.name" class="text-4xl font-semibold">{{ mutableCard.name }}</h3>

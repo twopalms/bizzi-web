@@ -94,6 +94,28 @@ export function useCardManager() {
     }
   }
 
+  async function uploadProfilePicture(file: object) {
+    const id = activeCard.value.uuid
+    const formData = new FormData()
+
+    formData.append('file', file, file.name)
+
+    try {
+      const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/picture/`, {
+        method: 'PUT',
+        body: formData,
+      })
+
+      console.log(response)
+
+      if (!response.ok) throw new Error('Upload failed')
+      const data = await response.json()
+      console.log('Upload success:', data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   async function patchCard(data: object): Card {
     error.value = null
     loading.value = true
@@ -188,5 +210,6 @@ export function useCardManager() {
     patchCard,
     setActiveCard,
     setError,
+    uploadProfilePicture,
   }
 }

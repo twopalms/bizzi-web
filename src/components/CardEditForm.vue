@@ -1,42 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatIncompletePhoneNumber } from 'libphonenumber-js'
 import parsePhoneNumber from 'libphonenumber-js'
 import ActionButton from '../components/ActionButton.vue'
 import CardEditSection from '../components/CardEditSection.vue'
 import InputContainer from '../components/InputContainer.vue'
-
-// TODO: deal with extensions as a separate input field.
-// libphonenumber-js doesn't know how to deal with it in a single string
-
-// TODO: get country code from browser instead of hardcoding US
-function formatPhone(value: string) {
-  if (!value) return ''
-  return formatIncompletePhoneNumber(value, 'US')
-}
-
-function parsePhone(value: string) {
-  let parsed = ''
-
-  try {
-    parsed = parsePhoneNumber(value, 'US')
-
-    if (parsed === undefined) {
-      parsed = value
-    } else {
-      if (value.startsWith('+')) {
-        parsed = parsed.formatInternational()
-      } else {
-        parsed = parsed.formatNational()
-        // parsed = parsed.number
-      }
-    }
-  } catch {
-    parsed = value
-  }
-
-  return parsed
-}
+import FileUpload from '../components/FileUpload.vue'
 
 function validatePhone(value: string) {
   if (!value) return ''
@@ -101,12 +69,10 @@ defineEmits(['submitDelete'])
 
 <template>
   <div class="flex flex-1 flex-col">
-    <!-- <CardEditSection title="Profile Picture"> -->
-    <!--   <label>Profile Picture</label> -->
-    <!--   <ActionButton bgColor="#d1d1d1" hoverColor="#e1e1e1" class="h-20 border-gray-500 border"> -->
-    <!--     <input type="file" accept="image/*" class="hover:cursor-pointer" /> -->
-    <!--   </ActionButton> -->
-    <!-- </CardEditSection> -->
+    <CardEditSection title="Header">
+      <label>Profile Picture</label>
+      <FileUpload v-model="card.picture" />
+    </CardEditSection>
     <CardEditSection title="Basic Information">
       <InputContainer
         v-for="item in basicInfoForm"
