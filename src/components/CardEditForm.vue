@@ -50,8 +50,6 @@ const contactInfoForm = [
     placeholder: '+1 555 123 4567',
     prop: 'phone',
     element: 'input',
-    // formatter: formatPhone,
-    // parser: parsePhone,
     validator: validatePhone,
   },
   { label: 'Website', placeholder: 'https://www.example.com', prop: 'website', element: 'input' },
@@ -70,8 +68,13 @@ defineEmits(['submitDelete'])
 <template>
   <div class="flex flex-1 flex-col">
     <CardEditSection title="Header">
-      <label>Profile Picture</label>
-      <FileUpload v-model="card.picture" />
+      <label>Picture</label>
+      <div class="flex flex-1">
+        <FileUpload v-model="card.picture" class="w-full mr-4" />
+        <ActionButton @click="() => (card.picture = null)" :disabled="!Boolean(card.picture)">
+          Clear
+        </ActionButton>
+      </div>
     </CardEditSection>
     <CardEditSection title="Basic Information">
       <InputContainer
