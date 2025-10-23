@@ -52,25 +52,6 @@ const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) 
   })
 }
 
-// const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) => {
-//   // Ensure we have a CSRF token
-//   if (!getCsrfToken()) {
-//     await fetchCsrfToken()
-//   }
-//
-//   const csrfToken = getCsrfToken()
-//
-//   return fetch(url, {
-//     ...options,
-//     credentials: 'include',
-//     headers: {
-//       'Content-Type': 'application/json',
-//       'X-CSRFToken': csrfToken || '',
-//       ...options.headers,
-//     },
-//   })
-// }
-
 export function useAuth() {
   const login = (userData: any) => {
     user.value = userData

@@ -53,6 +53,23 @@ watch(activeCard, (newCard) => {
   cardList.value[activeCardIndex.value] = newCard
 })
 
+async function fetchDirectory() {
+  try {
+    const resp = await makeAuthenticatedRequest(`${API_BASE}/api/cards/?public=true`, {
+      method: 'GET',
+    })
+
+    if (resp.ok) {
+      return await resp.json()
+    } else {
+      // todo: error handling
+      console.warn('Failed to load directory')
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 export function useCardManager() {
   const route = useRoute()
 
@@ -94,7 +111,7 @@ export function useCardManager() {
     }
   }
 
-  async function uploadPicture(file: object) {
+  async function uploadProfilePicture(file: object) {
     const id = activeCard.value.uuid
     const formData = new FormData()
 
@@ -105,22 +122,12 @@ export function useCardManager() {
         method: 'PUT',
         body: formData,
       })
+
+      console.log(response)
+
       if (!response.ok) throw new Error('Upload failed')
       const data = await response.json()
-      console.log(data)
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  async function deletePicture() {
-    const id = activeCard.value.uuid
-
-    try {
-      const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/picture/`, {
-        method: 'DELETE',
-      })
-      if (!response.ok) throw new Error('Delete failed')
+      console.log('Upload success:', data)
     } catch (err) {
       console.error(err)
     }
@@ -213,14 +220,14 @@ export function useCardManager() {
     cardList,
     createCard,
     deleteCard,
-    deletePicture,
     error,
     fetchCards,
+    fetchDirectory,
     isRoot,
     loading,
     patchCard,
     setActiveCard,
     setError,
-    uploadPicture,
+    uploadProfilePicture,
   }
 }
