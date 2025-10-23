@@ -9,7 +9,8 @@ const loading = ref(true)
 const items = ref([])
 const count = ref(0)
 
-const visibleKeys = ['name', 'job_title', 'company', 'location', 'phone']
+// phone / email / website
+const visibleKeys = ['name', 'job_title', 'company', 'location']
 
 function titleCase(value: string) {
   return value
@@ -31,6 +32,12 @@ function formatCell(item: object, key: string) {
   return value
 }
 
+// TODO:
+// - pagination
+// - links to public business card
+// - alternate table rows with gray/white
+// - search!
+
 onMounted(async () => {
   const resp = await fetchDirectory()
   items.value = resp.items
@@ -41,7 +48,7 @@ onMounted(async () => {
 
 <template>
   <div class="w-full h-full p-12">
-    <h2 class="text-3xl font-semibold pb-4">Directory</h2>
+    <h2 class="text-3xl font-semibold pb-4">Public Directory</h2>
     <table v-if="!loading" class="min-w-full">
       <thead class="bg-blue-200 border-b border-b-gray-500">
         <tr>
