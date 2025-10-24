@@ -53,11 +53,14 @@ watch(activeCard, (newCard) => {
   cardList.value[activeCardIndex.value] = newCard
 })
 
-async function fetchDirectory() {
+async function fetchDirectory(limit = 25, offset = 0, ordering = '-created_at') {
   try {
-    const resp = await makeAuthenticatedRequest(`${API_BASE}/api/cards/?public=true`, {
-      method: 'GET',
-    })
+    const resp = await makeAuthenticatedRequest(
+      `${API_BASE}/api/cards/?public=true&limit=${limit}&offset=${offset}&ordering=${ordering}`,
+      {
+        method: 'GET',
+      },
+    )
 
     if (resp.ok) {
       return await resp.json()
