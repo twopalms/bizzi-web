@@ -53,26 +53,6 @@ watch(activeCard, (newCard) => {
   cardList.value[activeCardIndex.value] = newCard
 })
 
-async function fetchDirectory(limit = 25, offset = 0, ordering = '-created_at') {
-  try {
-    const resp = await makeAuthenticatedRequest(
-      `${API_BASE}/api/cards/?public=true&limit=${limit}&offset=${offset}&ordering=${ordering}`,
-      {
-        method: 'GET',
-      },
-    )
-
-    if (resp.ok) {
-      return await resp.json()
-    } else {
-      // todo: error handling
-      console.warn('Failed to load directory')
-    }
-  } catch (err) {
-    console.error(err)
-  }
-}
-
 export function useCardManager() {
   const route = useRoute()
 
@@ -225,7 +205,6 @@ export function useCardManager() {
     deleteCard,
     error,
     fetchCards,
-    fetchDirectory,
     isRoot,
     loading,
     patchCard,

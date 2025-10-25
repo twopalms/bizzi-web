@@ -11,14 +11,19 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div
-    class="absolute -z-10 inset-0 h-full w-full bg-[radial-gradient(circle,#73737350_1px,transparent_1px)] bg-[size:10px_10px]"
-  />
-  <div :class="`${isRoot() ? '' : 'hidden'} sm:block bg-gray-100`">
-    <CardList />
+  <div class="relative flex h-full w-full">
+    <div
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle,#73737350_1px,transparent_1px)] bg-[size:10px_10px]"
+    />
+
+    <div :class="`${isRoot() ? '' : 'hidden'} sm:block bg-gray-100`">
+      <CardList />
+    </div>
+
+    <div v-if="activeCardIndex === null" class="flex flex-1 justify-center items-center text-2xl">
+      <h4>Select a card to get started</h4>
+    </div>
+
+    <router-view />
   </div>
-  <div v-if="activeCardIndex === null" class="flex flex-1 justify-center items-center text-2xl">
-    <h4>Select a card to get started</h4>
-  </div>
-  <router-view />
 </template>
