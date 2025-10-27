@@ -77,12 +77,7 @@ onUnmounted(() => {
   <div class="w-full h-screen">
     <div class="flex h-full">
       <div class="flex flex-grow overflow-y-auto items-center justify-center">
-        <BizziCard
-          v-if="activeCard"
-          color="#4fd4d6"
-          :card="activeCard"
-          :mutableCard="mutableCard"
-        />
+        <BizziCard v-if="activeCard" color="#4fd4d6" :card="mutableCard" />
       </div>
       <div
         class="w-100 justify-self-end overscroll-none overflow-y-auto bg-gray-100 border-l-2 border-gray-300"

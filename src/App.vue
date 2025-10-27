@@ -6,12 +6,9 @@ const route = useRoute()
 </script>
 
 <template>
-  <router-view v-if="['/login', '/signup'].includes(route.fullPath)" />
-
-  <!-- full-height layout -->
+  <router-view v-if="['login', 'signup', 'directory-detail'].includes(route.name)" />
   <div v-else class="h-screen flex font-custom overflow-hidden">
     <LeftNav class="shrink-0" />
-    <!-- scrollable content area -->
     <div class="flex-1 overflow-y-auto">
       <router-view />
     </div>

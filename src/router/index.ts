@@ -30,7 +30,13 @@ const router = createRouter({
       path: '/directory',
       name: 'contacts',
       component: () => import('@/views/DirectoryView.vue'),
+      // TODO: determine if this should be public
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/directory/:slug',
+      name: 'directory-detail',
+      component: () => import('@/views/PublicCardView.vue'),
     },
     {
       path: '/account',

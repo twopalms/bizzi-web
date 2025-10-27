@@ -38,8 +38,7 @@ const ordering = computed(() => {
     return '-created_at'
   }
 
-  let field = columnKeys[sortColumn.value]
-
+  const field = columnKeys[sortColumn.value]
   return `${sortDirection.value}${field}`
 })
 
