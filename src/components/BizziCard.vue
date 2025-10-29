@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useClipboard } from '@vueuse/core'
 import parsePhoneNumber from 'libphonenumber-js'
+import CopyIcon from '../components/CopyIcon.vue'
 
 const props = defineProps({
   card: Object,
@@ -11,10 +12,25 @@ const props = defineProps({
   },
 })
 
+// TODO: display "copied" text when a copy is successful
 const { copy } = useClipboard()
 
 const contactItemIndex = ref(null)
+const showCopyContactItemSuccessIndex = ref(null)
 const linkItemIndex = ref(null)
+const showCopyLinkItemSuccessIndex = ref(null)
+
+async function handleCopy(text: string) {
+  copy(text)
+
+  showCopyContactItemSuccessIndex.value = contactItemIndex.value
+  showCopyLinkItemSuccessIndex.value = linkItemIndex.value
+
+  await new Promise((r) => setTimeout(r, 1000))
+
+  showCopyContactItemSuccessIndex.value = null
+  showCopyLinkItemSuccessIndex.value = null
+}
 
 function formatPhone(value: string) {
   if (!value) return ''
@@ -113,7 +129,7 @@ function displayProfilePicture(value: string | object) {
           :style="`--cardColor: ${color}`"
         />
         <div
-          @click="copy(item.value)"
+          @click="handleCopy(item.value)"
           @mouseover="contactItemIndex = index"
           @mouseleave="contactItemIndex = null"
           v-for="(item, index) in cleanContactInfo(card)"
@@ -122,16 +138,21 @@ function displayProfilePicture(value: string | object) {
           :style="`--borderColor: ${color}80; --bgColor: ${color}10`"
         >
           <i :class="`pi ${item.icon} text-sm mx-4`"></i>
-          <a
-            v-if="item.name == 'website'"
-            :href="item.value"
-            target="_blank"
-            class="hover:text-blue-800 hover:underline"
-          >
-            {{ item.value }}
-          </a>
-          <a v-else>{{ item.value }}</a>
-          <i v-if="contactItemIndex == index" class="pi pi-copy text-sm flex-1 text-right mx-4"></i>
+          <div class="flex flex-1 justify-between items-center mr-4">
+            <a
+              v-if="item.name == 'website'"
+              :href="item.value"
+              target="_blank"
+              class="hover:text-blue-800 hover:underline"
+            >
+              {{ item.value }}
+            </a>
+            <a v-else>{{ item.value }}</a>
+            <CopyIcon
+              v-if="contactItemIndex == index"
+              :showSuccess="showCopyContactItemSuccessIndex == contactItemIndex"
+            />
+          </div>
         </div>
       </div>
       <div v-if="card.links.length !== 0">
@@ -141,7 +162,7 @@ function displayProfilePicture(value: string | object) {
         />
         <ol>
           <li
-            @click="copy(link.url)"
+            @click="handleCopy(link.url)"
             @mouseover="linkItemIndex = index"
             @mouseleave="linkItemIndex = null"
             v-for="(link, index) in card.links"
@@ -153,7 +174,10 @@ function displayProfilePicture(value: string | object) {
             <a :href="link.url" target="_blank" class="hover:text-blue-800 hover:underline">{{
               link.url
             }}</a>
-            <i v-if="linkItemIndex == index" class="pi pi-copy text-sm flex-1 text-right mx-4"></i>
+            <CopyIcon
+              v-if="linkItemIndex == index"
+              :showSuccess="showCopyLinkItemSuccessIndex == linkItemIndex"
+            />
           </li>
         </ol>
       </div>
