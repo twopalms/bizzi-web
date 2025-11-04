@@ -80,7 +80,7 @@ onUnmounted(() => {
         <BizziCard v-if="activeCard" color="#4fd4d6" :card="mutableCard" class="w-120 max-w-120" />
       </div>
       <div
-        class="w-100 justify-self-end overscroll-none overflow-y-auto bg-gray-100 border-l-2 border-gray-300"
+        class="w-min-100 w-max-100 w-100 justify-self-end overscroll-none overflow-y-auto bg-gray-100 border-l-2 border-gray-300"
       >
         <div
           class="flex justify-between items-center h-18 bg-gray-200 px-4 sticky top-0 z-10 border-b border-gray-300"

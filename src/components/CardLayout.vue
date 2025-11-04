@@ -3,6 +3,9 @@ import { onMounted } from 'vue'
 import { useCardManager } from '../composables/useCardManager.ts'
 import CardList from '../components/CardList.vue'
 
+// TODO: there is a minor issue if you add a card with no card selected
+// You have to click a couple of times for the active card to work
+
 const { activeCardIndex, fetchCards, isRoot } = useCardManager()
 
 onMounted(async () => {
@@ -20,8 +23,11 @@ onMounted(async () => {
       <CardList />
     </div>
 
-    <div v-if="activeCardIndex === null" class="flex flex-1 justify-center items-center text-2xl">
-      <h4>Select a card to get started</h4>
+    <div
+      v-if="activeCardIndex === null"
+      class="flex justify-center items-center text-2xl w-full h-full"
+    >
+      <h4 class="w-full text-center">Select a card to get started</h4>
     </div>
 
     <router-view />
