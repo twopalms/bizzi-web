@@ -3,6 +3,14 @@ import { ref } from 'vue'
 import AirButton from '../components/AirButton.vue'
 import InputContainer from '../components/InputContainer.vue'
 
+defineProps({
+  name: {
+    type: String,
+  },
+})
+
+// TODO: make this a max height and allow scrolling
+
 const data = ref({
   name: null,
   email: null,
@@ -46,6 +54,9 @@ const data = ref({
       placeholder="Say hello"
       element="textarea"
     />
+    <p class="text-xs text-center">
+      This information will only be shared with <span class="font-semibold">{{ name }}</span>
+    </p>
     <AirButton>Submit</AirButton>
   </div>
 </template>

@@ -67,7 +67,7 @@ onMounted(async () => {
   >
     <main class="flex flex-col justify-center items-center flex-grow">
       <FocusModal v-model="showContactForm">
-        <ContactForm />
+        <ContactForm :name="card?.name" />
       </FocusModal>
       <BizziCard v-if="card" :color="color" :card="card" class="w-120 max-w-120" />
       <AirButton @click="handleShareContactInfoClick" class="mt-6">
