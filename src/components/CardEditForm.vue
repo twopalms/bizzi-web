@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import parsePhoneNumber from 'libphonenumber-js'
-import ActionButton from '../components/ActionButton.vue'
+import AirButton from '../components/AirButton.vue'
 import CardEditSection from '../components/CardEditSection.vue'
 import InputContainer from '../components/InputContainer.vue'
 import FileUpload from '../components/FileUpload.vue'
@@ -69,11 +69,11 @@ defineEmits(['submitDelete'])
   <div class="flex flex-1 flex-col">
     <CardEditSection title="Header">
       <label>Picture</label>
-      <div class="flex flex-1">
+      <div class="flex flex-1 items-center">
         <FileUpload v-model="card.picture" class="w-full mr-4" />
-        <ActionButton @click="() => (card.picture = null)" :disabled="!Boolean(card.picture)">
+        <AirButton @click="() => (card.picture = null)" :enabled="Boolean(card.picture)">
           Clear
-        </ActionButton>
+        </AirButton>
       </div>
     </CardEditSection>
     <CardEditSection title="Basic Information">
@@ -119,9 +119,9 @@ defineEmits(['submitDelete'])
           <strong>Delete this card</strong>
           <div>Permanently delete this card. This cannot be undone.</div>
         </div>
-        <ActionButton @click="$emit('submitDelete')" bgColor="#FF5F57" hoverColor="#9C0203">
+        <AirButton @click="$emit('submitDelete')" bgColor="#FF5F57" hoverColor="#9C0203">
           Delete
-        </ActionButton>
+        </AirButton>
       </div>
     </CardEditSection>
   </div>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import ActionButton from '../components/ActionButton.vue'
 
 const file = defineModel<File | null>()
 
@@ -22,7 +21,7 @@ const preview = computed(() => {
 </script>
 
 <template>
-  <ActionButton class="relative h-10 border-gray-500 border">
+  <div class="relative h-8 border-gray-500 border">
     <span class="absolute inset-0 flex items-center justify-center">{{ preview }}</span>
     <input
       @change="handleFileChange"
@@ -30,5 +29,5 @@ const preview = computed(() => {
       accept="image/*"
       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
     />
-  </ActionButton>
+  </div>
 </template>

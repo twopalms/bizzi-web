@@ -108,7 +108,7 @@ function displayProfilePicture(value: string | object) {
 </script>
 
 <template>
-  <div class="flex flex-col w-120 max-w-120 rounded-lg shadow-lg shadow-black/40 bg-white">
+  <div class="flex flex-col rounded-lg bg-white border border-black">
     <div
       class="bg-[var(--cardColor)] flex items-center justify-end min-h-36 max-h-36 rounded-t-lg"
       :style="`--cardColor: ${color}`"

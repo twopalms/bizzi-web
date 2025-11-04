@@ -2,7 +2,7 @@
 import { onUnmounted, toRaw, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCardManager } from '../composables/useCardManager.ts'
-import ActionButton from '../components/ActionButton.vue'
+import AirButton from '../components/AirButton.vue'
 import BizziCard from '../components/BizziCard.vue'
 import CardEditForm from '../components/CardEditForm.vue'
 
@@ -77,7 +77,7 @@ onUnmounted(() => {
   <div class="w-full h-screen">
     <div class="flex h-full">
       <div class="flex flex-grow overflow-y-auto items-center justify-center">
-        <BizziCard v-if="activeCard" color="#4fd4d6" :card="mutableCard" />
+        <BizziCard v-if="activeCard" color="#4fd4d6" :card="mutableCard" class="w-120 max-w-120" />
       </div>
       <div
         class="w-100 justify-self-end overscroll-none overflow-y-auto bg-gray-100 border-l-2 border-gray-300"
@@ -87,8 +87,8 @@ onUnmounted(() => {
         >
           <h4>Edit your card below</h4>
           <div class="flex gap-2">
-            <ActionButton @click="handleReset" :enabled="hasPendingChanges"> Reset </ActionButton>
-            <ActionButton @click="handleSave" :enabled="hasPendingChanges"> Save </ActionButton>
+            <AirButton @click="handleReset" :enabled="hasPendingChanges"> Reset </AirButton>
+            <AirButton @click="handleSave" :enabled="hasPendingChanges"> Save </AirButton>
           </div>
         </div>
         <CardEditForm v-if="mutableCard" v-model="mutableCard" @submit-delete="handleDelete" />

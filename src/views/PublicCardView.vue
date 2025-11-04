@@ -2,8 +2,11 @@
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth.ts'
+import AirButton from '../components/AirButton.vue'
 import BizziCard from '../components/BizziCard.vue'
 import NotFound from '../components/NotFound.vue'
+import ContactForm from '../components/ContactForm.vue'
+import FocusModal from '../components/FocusModal.vue'
 
 // TODO: if the card owner has a paid account, remove branding
 // TODO: add color to the card options - color ref is placeholder
@@ -17,6 +20,7 @@ const card = ref(null)
 const color = '#4fd4d6'
 const loading = ref(true)
 const notFound = ref(false)
+const showContactForm = ref(false)
 
 async function fetchPublicCard() {
   const slug = route.params.slug
@@ -45,6 +49,10 @@ async function fetchPublicCard() {
   }
 }
 
+function handleShareContactInfoClick() {
+  showContactForm.value = !showContactForm.value
+}
+
 onMounted(async () => {
   card.value = await fetchPublicCard()
 })
@@ -58,12 +66,15 @@ onMounted(async () => {
     :style="`background-color: ${color}20`"
   >
     <main class="flex flex-col justify-center items-center flex-grow">
-      <BizziCard v-if="card" :color="color" :card="card" />
-      <div
-        class="border border-blue-400 bg-blue-200 mt-6 p-3 rounded-lg hover:bg-blue-300 hover:cursor-pointer"
-      >
-        <span>Share My Contact Info</span>
-      </div>
+      <FocusModal v-model="showContactForm">
+        <ContactForm />
+      </FocusModal>
+      <BizziCard v-if="card" :color="color" :card="card" class="w-120 max-w-120" />
+      <AirButton @click="handleShareContactInfoClick" class="mt-6">
+        <span
+          >Connect with <span class="font-semibold">{{ card?.name }}</span></span
+        >
+      </AirButton>
     </main>
 
     <footer class="w-full text-center py-2 text-gray-700 text-sm">
