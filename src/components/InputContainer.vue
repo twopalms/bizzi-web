@@ -40,26 +40,30 @@ const error = computed(() => props.validator(text.value))
 <template>
   <div class="flex flex-col gap-1">
     <label class="font-medium">{{ label }}</label>
+
     <input
-      v-if="element == 'input'"
+      v-if="element === 'input'"
       type="text"
-      class="flex flex-grow bg-white rounded p-2 shadow-sm"
       v-model.trim="formatted"
       :placeholder="placeholder"
+      class="flex flex-grow bg-white rounded-lg p-2 border border-black shadow-[inset_0_2px_0_0_#9ca3af,inset_0_-2px_0_0_#ffffff] focus:outline-none focus:ring-0"
     />
+
     <PhoneInput
-      v-else-if="element == 'phone'"
+      v-else-if="element === 'phone'"
       v-model:text="text"
       v-model:error="error"
       :initial="text"
     />
+
     <textarea
+      v-else-if="element === 'textarea'"
       rows="5"
-      v-else-if="element == 'textarea'"
-      class="flex flex-grow bg-white rounded p-2 shadow-sm"
       v-model.trim="formatted"
       :placeholder="placeholder"
+      class="flex flex-grow bg-white rounded-lg p-2 border border-black shadow-[inset_0_2px_0_0_#9ca3af,inset_0_-2px_0_0_#ffffff] focus:outline-none focus:ring-0"
     />
   </div>
+
   <small v-if="error" class="text-red-800">{{ error }}</small>
 </template>

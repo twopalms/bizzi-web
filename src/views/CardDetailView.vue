@@ -88,7 +88,9 @@ onUnmounted(() => {
           <h4>Edit your card below</h4>
           <div class="flex gap-2">
             <AirButton @click="handleReset" :enabled="hasPendingChanges"> Reset </AirButton>
-            <AirButton @click="handleSave" :enabled="hasPendingChanges"> Save </AirButton>
+            <AirButton @click="handleSave" :enabled="hasPendingChanges" bgColor="#86d196">
+              Save
+            </AirButton>
           </div>
         </div>
         <CardEditForm v-if="mutableCard" v-model="mutableCard" @submit-delete="handleDelete" />

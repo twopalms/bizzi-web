@@ -22,7 +22,7 @@ const data = ref({
 </script>
 
 <template>
-  <div class="p-6 flex flex-col gap-6 rounded-xl">
+  <div class="p-6 flex flex-col gap-4 rounded-xl">
     <InputContainer v-model="data['name']" label="Name" placeholder="John Doe" element="input" />
     <InputContainer
       v-model="data['email']"

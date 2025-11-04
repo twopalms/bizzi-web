@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import parsePhoneNumber from 'libphonenumber-js'
 import AirButton from '../components/AirButton.vue'
 import CardEditSection from '../components/CardEditSection.vue'
 import InputContainer from '../components/InputContainer.vue'
 import FileUpload from '../components/FileUpload.vue'
+import FocusModal from '../components/FocusModal.vue'
+
+// TODO: add links section
+
+const emit = defineEmits(['submitDelete'])
 
 function validatePhone(value: string) {
   if (!value) return ''
@@ -24,6 +29,7 @@ const card = defineModel<object | null>()
 const publicUrl = computed(() => {
   return `https://bizzi.com/${card.value.slug}`
 })
+const showDeleteConfirmation = ref(false)
 
 const basicInfoForm = [
   { label: 'Full Name', placeholder: 'Enter your full name', prop: 'name', element: 'input' },
@@ -62,10 +68,25 @@ const validateSlug = (text) => {
   }
 }
 
-defineEmits(['submitDelete'])
+async function handleDelete() {
+  try {
+    showDeleteConfirmation.value = false
+    emit('submitDelete')
+  } catch (e) {
+    console.log(e)
+  }
+}
 </script>
 
 <template>
+  <FocusModal v-model="showDeleteConfirmation">
+    <div class="flex flex-col text-center gap-4">
+      <p>Please confirm deletion</p>
+      <div>
+        <AirButton @click="handleDelete" bgColor="#FF5F57"> Delete </AirButton>
+      </div>
+    </div>
+  </FocusModal>
   <div class="flex flex-1 flex-col">
     <CardEditSection title="Header">
       <label>Picture</label>
@@ -114,14 +135,16 @@ defineEmits(['submitDelete'])
           >https://bizzicard.com/directory/{{ card.slug }}</a
         >
       </div>
-      <div class="flex justify-between border border-red-400/50 p-2 mt-4 rounded-md">
-        <div class="flex flex-col text-sm">
+      <div class="flex justify-between items-center border border-red-400/50 p-2 rounded-md">
+        <div class="flex flex-col gap-2 text-sm">
           <strong>Delete this card</strong>
-          <div>Permanently delete this card. This cannot be undone.</div>
+          <p>Permanently delete this card. This cannot be undone.</p>
         </div>
-        <AirButton @click="$emit('submitDelete')" bgColor="#FF5F57" hoverColor="#9C0203">
-          Delete
-        </AirButton>
+        <div>
+          <AirButton @click="() => (showDeleteConfirmation = true)" bgColor="#FF5F57">
+            Delete
+          </AirButton>
+        </div>
       </div>
     </CardEditSection>
   </div>
