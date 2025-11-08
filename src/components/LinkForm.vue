@@ -38,11 +38,11 @@ onMounted(() => {
     item-key="id"
     handle=".drag-handle"
     tag="ol"
-    class="flex flex-col gap-2"
+    class="flex flex-col gap-1"
     :animation="150"
   >
     <template #item="{ index }">
-      <li class="border border-gray-500 rounded p-3">
+      <li class="border border-gray-500 rounded-lg shadow bg-gray-50 p-3">
         <div class="flex items-center gap-2">
           <i
             v-if="!editing[index]"
