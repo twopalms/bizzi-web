@@ -9,8 +9,6 @@ defineProps({
   },
 })
 
-// TODO: make this a max height and allow scrolling
-
 const data = ref({
   name: null,
   email: null,
@@ -19,11 +17,21 @@ const data = ref({
   company: null,
   message: null,
 })
+
+async function handleSubmit() {
+  console.log(data)
+}
 </script>
 
 <template>
   <div class="p-6 flex flex-col gap-4 rounded-xl">
-    <InputContainer v-model="data['name']" label="Name" placeholder="John Doe" element="input" />
+    <InputContainer
+      v-model="data['name']"
+      label="Name"
+      placeholder="John Doe"
+      element="input"
+      :required="true"
+    />
     <InputContainer
       v-model="data['email']"
       label="Email"
@@ -57,6 +65,6 @@ const data = ref({
     <p class="text-xs text-center">
       This information will only be shared with <span class="font-semibold">{{ name }}</span>
     </p>
-    <AirButton>Submit</AirButton>
+    <AirButton @click="handleSubmit">Submit</AirButton>
   </div>
 </template>

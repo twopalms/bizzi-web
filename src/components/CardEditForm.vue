@@ -6,8 +6,7 @@ import CardEditSection from '../components/CardEditSection.vue'
 import InputContainer from '../components/InputContainer.vue'
 import FileUpload from '../components/FileUpload.vue'
 import FocusModal from '../components/FocusModal.vue'
-
-// TODO: add links section
+import LinkForm from '../components/LinkForm.vue'
 
 const emit = defineEmits(['submitDelete'])
 
@@ -123,7 +122,10 @@ async function handleDelete() {
         :validator="item.validator"
       />
     </CardEditSection>
-    <CardEditSection title=" Options">
+    <CardEditSection title="Links">
+      <LinkForm v-model="card['links']" />
+    </CardEditSection>
+    <CardEditSection title="Options">
       <InputContainer
         label="Public URL"
         placeholder="your-custom-url"

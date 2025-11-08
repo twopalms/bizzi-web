@@ -160,6 +160,7 @@ function displayProfilePicture(value: string | object) {
           class="flex flex-col bg-[var(--cardColor)] h-0.5 my-4"
           :style="`--cardColor: ${color}`"
         />
+        <!-- <h4 class="text-center font-semibold">Links</h4> -->
         <ol>
           <li
             @click="handleCopy(link.url)"
@@ -171,13 +172,15 @@ function displayProfilePicture(value: string | object) {
             :style="`--borderColor: ${color}80; --bgColor: ${color}10`"
           >
             <img height="16" width="16" class="shrink-0 mx-4" :src="getFavicon(link.url)" />
-            <a :href="link.url" target="_blank" class="hover:text-blue-800 hover:underline">{{
-              link.url
-            }}</a>
-            <CopyIcon
-              v-if="linkItemIndex == index"
-              :showSuccess="showCopyLinkItemSuccessIndex == linkItemIndex"
-            />
+            <div class="flex flex-1 justify-between items-center mr-4">
+              <a :href="link.url" target="_blank" class="hover:text-blue-800 hover:underline">{{
+                link.name
+              }}</a>
+              <CopyIcon
+                v-if="linkItemIndex == index"
+                :showSuccess="showCopyLinkItemSuccessIndex == linkItemIndex"
+              />
+            </div>
           </li>
         </ol>
       </div>

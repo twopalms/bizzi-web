@@ -74,27 +74,27 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full h-screen">
-    <div class="flex h-full">
-      <div class="flex flex-grow overflow-y-auto items-center justify-center">
+  <div class="flex w-full h-full">
+    <div class="flex flex-grow flex-col overflow-y-auto items-center justify-center px-12 pt-30">
+      <div class="pb-10">
         <BizziCard v-if="activeCard" color="#4fd4d6" :card="mutableCard" class="w-120 max-w-120" />
       </div>
+    </div>
+    <div
+      class="w-min-100 w-max-100 w-100 justify-self-end overscroll-none overflow-y-auto bg-gray-100 border-l-2 border-gray-300"
+    >
       <div
-        class="w-min-100 w-max-100 w-100 justify-self-end overscroll-none overflow-y-auto bg-gray-100 border-l-2 border-gray-300"
+        class="flex justify-between items-center h-18 bg-gray-200 px-4 sticky top-0 z-10 border-b border-gray-300"
       >
-        <div
-          class="flex justify-between items-center h-18 bg-gray-200 px-4 sticky top-0 z-10 border-b border-gray-300"
-        >
-          <h4>Edit your card below</h4>
-          <div class="flex gap-2">
-            <AirButton @click="handleReset" :enabled="hasPendingChanges"> Reset </AirButton>
-            <AirButton @click="handleSave" :enabled="hasPendingChanges" bgColor="#86d196">
-              Save
-            </AirButton>
-          </div>
+        <h4>Edit your card below</h4>
+        <div class="flex gap-2">
+          <AirButton @click="handleReset" :enabled="hasPendingChanges"> Reset </AirButton>
+          <AirButton @click="handleSave" :enabled="hasPendingChanges" bgColor="#86d196">
+            Save
+          </AirButton>
         </div>
-        <CardEditForm v-if="mutableCard" v-model="mutableCard" @submit-delete="handleDelete" />
       </div>
+      <CardEditForm v-if="mutableCard" v-model="mutableCard" @submit-delete="handleDelete" />
     </div>
   </div>
 </template>

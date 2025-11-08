@@ -9,6 +9,7 @@ const props = defineProps({
   },
   label: String,
   placeholder: String,
+  required: Boolean,
   validator: {
     type: Function,
     default: () => '',
@@ -20,6 +21,10 @@ const props = defineProps({
   formatter: {
     type: Function,
     default: (value: string) => value,
+  },
+  showError: {
+    type: Boolean,
+    default: true,
   },
 })
 
@@ -39,7 +44,10 @@ const error = computed(() => props.validator(text.value))
 
 <template>
   <div class="flex flex-col gap-1">
-    <label class="font-medium">{{ label }}</label>
+    <div class="flex gap-2 items-center">
+      <label class="font-medium">{{ label }}</label>
+      <span v-if="required" class="text-xs">(required)</span>
+    </div>
 
     <input
       v-if="element === 'input'"
@@ -65,5 +73,5 @@ const error = computed(() => props.validator(text.value))
     />
   </div>
 
-  <small v-if="error" class="text-red-800">{{ error }}</small>
+  <small v-if="showError && error" class="text-red-800">{{ error }}</small>
 </template>
