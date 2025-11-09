@@ -94,6 +94,20 @@ export function useCardManager() {
     }
   }
 
+  async function deleteProfilePicture() {
+    const id = activeCard.value.uuid
+
+    try {
+      const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/picture/`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Failed to delete picture')
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   async function uploadProfilePicture(file: object) {
     const id = activeCard.value.uuid
     const formData = new FormData()
@@ -106,11 +120,8 @@ export function useCardManager() {
         body: formData,
       })
 
-      console.log(response)
-
       if (!response.ok) throw new Error('Upload failed')
-      const data = await response.json()
-      console.log('Upload success:', data)
+      return await response.json()
     } catch (err) {
       console.error(err)
     }
@@ -203,6 +214,7 @@ export function useCardManager() {
     cardList,
     createCard,
     deleteCard,
+    deleteProfilePicture,
     error,
     fetchCards,
     isRoot,

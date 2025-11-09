@@ -1,12 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import InputContainer from '../components/InputContainer.vue'
 
-const emit = defineEmits(['submitDelete', 'submitDone'])
+const emit = defineEmits(['submitDelete', 'submitDone', 'faviconReady'])
 const editing = defineModel('editing', { default: false })
 const name = defineModel('name')
 const url = defineModel('url')
 const showError = ref(false)
+const favicon = computed(() => {
+  return getFaviconURL(url.value)
+})
+
+function getFaviconURL(url: string) {
+  try {
+    const u = new URL(url)
+    emit('faviconReady')
+    return `${u.origin}/favicon.ico`
+  } catch {
+    return null
+  }
+}
 
 function isValidUrl(url) {
   try {
@@ -38,11 +51,22 @@ function handleSubmitDelete() {
   editing.value = false
   emit('submitDelete')
 }
+
+// import { watchDebounced } from '@vueuse/core'
+
+// watchDebounced(
+//   url,
+//   (newUrl) => {
+//     favicon.value = getFaviconURL(newUrl)
+//   },
+//   { initial: true, debounce: 500 },
+// )
 </script>
 
 <template>
   <div class="flex justify-between items-center">
     <div v-if="!editing" class="w-full flex gap-3 items-center">
+      <img v-if="favicon" width="16" :src="favicon" />
       <label class="font-medium truncate">{{ name }}</label>
     </div>
 

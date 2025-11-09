@@ -7,6 +7,7 @@ import InputContainer from '../components/InputContainer.vue'
 import FileUpload from '../components/FileUpload.vue'
 import FocusModal from '../components/FocusModal.vue'
 import LinkForm from '../components/LinkForm.vue'
+import PublicToggle from '../components/PublicToggle.vue'
 
 const emit = defineEmits(['submitDelete'])
 
@@ -26,7 +27,8 @@ function validatePhone(value: string) {
 
 const card = defineModel<object | null>()
 const publicUrl = computed(() => {
-  return `https://bizzi.com/${card.value.slug}`
+  // TODO: make this env-dependent
+  return `https://bizzicard.com/directory/${card.value.slug}`
 })
 const showDeleteConfirmation = ref(false)
 
@@ -123,19 +125,21 @@ async function handleDelete() {
       />
     </CardEditSection>
     <CardEditSection title="Links">
-      <LinkForm v-model="card['links']" />
+      <LinkForm v-model="card.links" />
     </CardEditSection>
     <CardEditSection title="Options">
+      <PublicToggle v-model="card.public" />
       <InputContainer
         label="Public URL"
         placeholder="your-custom-url"
         v-model="card.slug"
         :validator="validateSlug"
       />
-      <div class="flex flex-col text-sm">
-        <a :href="publicUrl" class="hover:cursor-pointer hover:underline text-blue-800"
-          >https://bizzicard.com/directory/{{ card.slug }}</a
-        >
+      <div class="flex flex-col text-sm gap-3">
+        <a :href="publicUrl" class="hover:cursor-pointer hover:underline text-blue-800">{{
+          publicUrl
+        }}</a>
+        <!-- <div>Note - Your card will only be available at this URL if set to public</div> -->
       </div>
       <div class="flex justify-between items-center border border-red-400/50 p-2 rounded-md">
         <div class="flex flex-col gap-2 text-sm">
