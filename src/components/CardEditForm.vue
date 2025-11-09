@@ -82,7 +82,7 @@ async function handleDelete() {
 <template>
   <FocusModal v-model="showDeleteConfirmation">
     <div class="flex flex-col text-center gap-4">
-      <p>Please confirm deletion</p>
+      <p>Confirm deletion. This action cannot be undone.</p>
       <div>
         <AirButton @click="handleDelete" bgColor="#FF5F57"> Delete </AirButton>
       </div>
