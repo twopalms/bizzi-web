@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useClipboard } from '@vueuse/core'
+import { computed } from 'vue'
 import parsePhoneNumber from 'libphonenumber-js'
-import CopyIcon from '../components/CopyIcon.vue'
+import BizziCardUnit from '../components/BizziCardUnit.vue'
+
+// TODO: figure out if we want to show the favicon for a website or not.
+// Maybe make it optional?
 
 const props = defineProps({
   card: Object,
@@ -12,25 +14,13 @@ const props = defineProps({
   },
 })
 
-// TODO: display "copied" text when a copy is successful
-const { copy } = useClipboard()
-
-const contactItemIndex = ref(null)
-const showCopyContactItemSuccessIndex = ref(null)
-const linkItemIndex = ref(null)
-const showCopyLinkItemSuccessIndex = ref(null)
-
-async function handleCopy(text: string) {
-  copy(text)
-
-  showCopyContactItemSuccessIndex.value = contactItemIndex.value
-  showCopyLinkItemSuccessIndex.value = linkItemIndex.value
-
-  await new Promise((r) => setTimeout(r, 1000))
-
-  showCopyContactItemSuccessIndex.value = null
-  showCopyLinkItemSuccessIndex.value = null
-}
+const cleanWebsite = computed(() => {
+  if (!props.card.website) return props.card.website
+  if (!props.card.website.startsWith('http')) {
+    return 'https://' + props.card.website
+  }
+  return props.card.website
+})
 
 function formatPhone(value: string) {
   if (!value) return ''
@@ -59,37 +49,13 @@ const hasContactInfo = computed(() => {
 })
 
 function getFavicon(url: string) {
+  // TODO: figure out how to properly determine if favicon exists
   try {
     const u = new URL(url)
     return `${u.origin}/favicon.ico`
   } catch {
     return null
   }
-}
-
-function cleanContactInfo(data) {
-  const output = []
-
-  if (data.email) {
-    const obj = { name: 'email', icon: 'pi-envelope', value: data.email }
-    output.push(obj)
-  }
-
-  if (data.phone) {
-    const obj = {
-      name: 'phone',
-      icon: 'pi-phone',
-      value: formatPhone(data.phone),
-    }
-    output.push(obj)
-  }
-
-  if (data.website) {
-    const obj = { name: 'website', icon: 'pi-globe', value: data.website }
-    output.push(obj)
-  }
-
-  return output
 }
 
 function displayProfilePicture(value: string | object) {
@@ -103,8 +69,6 @@ function displayProfilePicture(value: string | object) {
     console.error('Bad profile picture object')
   }
 }
-
-// TODO: make size passable as props
 </script>
 
 <template>
@@ -116,7 +80,8 @@ function displayProfilePicture(value: string | object) {
       <img :src="displayProfilePicture(card.picture)" class="rounded-full w-auto h-36 m-4 p-4" />
     </div>
     <div class="p-6">
-      <h3 v-if="card.name" class="text-4xl font-semibold">{{ card.name }}</h3>
+      <!-- Basic Info --->
+      <div v-if="card.name" class="text-4xl font-semibold">{{ card.name }}</div>
       <div v-if="card.job_title" class="text-3xl mb-4">{{ card.job_title }}</div>
       <div v-if="card.company" class="text-2xl">{{ card.company }}</div>
       <div v-if="card.location" class="text-xl">{{ card.location }}</div>
@@ -128,59 +93,50 @@ function displayProfilePicture(value: string | object) {
           class="flex flex-col bg-[var(--cardColor)] h-0.5 my-4"
           :style="`--cardColor: ${color}`"
         />
-        <div
-          @click="handleCopy(item.value)"
-          @mouseover="contactItemIndex = index"
-          @mouseleave="contactItemIndex = null"
-          v-for="(item, index) in cleanContactInfo(card)"
-          :key="index"
-          class="flex py-2 items-center hover:ring-1 hover:ring-[var(--borderColor)] hover:bg-[var(--bgColor)] rounded-lg cursor-pointer"
-          :style="`--borderColor: ${color}80; --bgColor: ${color}10`"
-        >
-          <i :class="`pi ${item.icon} text-sm mx-4`"></i>
-          <div class="flex flex-1 justify-between items-center mr-4">
-            <a
-              v-if="item.name == 'website'"
-              :href="item.value"
-              target="_blank"
-              class="hover:text-blue-800 hover:underline"
-            >
-              {{ item.value }}
-            </a>
-            <a v-else>{{ item.value }}</a>
-            <CopyIcon
-              v-if="contactItemIndex == index"
-              :showSuccess="showCopyContactItemSuccessIndex == contactItemIndex"
-            />
+
+        <!-- Contact Info --->
+        <BizziCardUnit v-if="card.email" :color="color" :copyValue="card.email">
+          <div class="flex gap-3 items-center px-2">
+            <i class="pi pi-envelope" />
+            <span>{{ card.email }}</span>
           </div>
-        </div>
+        </BizziCardUnit>
+        <BizziCardUnit v-if="card.phone" :color="color" :copyValue="card.phone">
+          <div class="flex gap-3 items-center px-2">
+            <i class="pi pi-phone" />
+            <span>{{ formatPhone(card.phone) }}</span>
+          </div>
+        </BizziCardUnit>
+        <BizziCardUnit v-if="cleanWebsite" :color="color" :copyValue="cleanWebsite">
+          <div class="flex gap-3 items-center px-2">
+            <i class="pi pi-globe" />
+            <a :href="cleanWebsite" target="_blank" class="hover:text-blue-800 hover:underline">
+              {{ card.website }}
+            </a>
+          </div>
+        </BizziCardUnit>
       </div>
+
+      <!-- Links --->
       <div v-if="card.links.length !== 0">
         <div
           class="flex flex-col bg-[var(--cardColor)] h-0.5 my-4"
           :style="`--cardColor: ${color}`"
         />
-        <!-- <h4 class="text-center font-semibold">Links</h4> -->
         <ol>
-          <li
-            @click="handleCopy(link.url)"
-            @mouseover="linkItemIndex = index"
-            @mouseleave="linkItemIndex = null"
-            v-for="(link, index) in card.links"
-            :key="index"
-            class="flex py-2 items-center hover:ring-1 hover:ring-[var(--borderColor)] hover:bg-[var(--bgColor)] rounded-lg cursor-pointer"
-            :style="`--borderColor: ${color}80; --bgColor: ${color}10`"
-          >
-            <img height="16" width="16" class="shrink-0 mx-4" :src="getFavicon(link.url)" />
-            <div class="flex flex-1 justify-between items-center mr-4">
-              <a :href="link.url" target="_blank" class="hover:text-blue-800 hover:underline">{{
-                link.name
-              }}</a>
-              <CopyIcon
-                v-if="linkItemIndex == index"
-                :showSuccess="showCopyLinkItemSuccessIndex == linkItemIndex"
-              />
-            </div>
+          <li v-for="(link, index) in card.links" :key="index">
+            <BizziCardUnit :color="color" :copyValue="link.url">
+              <div class="flex gap-3 items-center px-2">
+                <img height="16" width="16" :src="getFavicon(link.url)" />
+                <a
+                  v-on:click.stop
+                  :href="link.url"
+                  target="_blank"
+                  class="hover:text-blue-800 hover:underline"
+                  >{{ link.name }}</a
+                >
+              </div>
+            </BizziCardUnit>
           </li>
         </ol>
       </div>

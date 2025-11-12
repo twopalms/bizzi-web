@@ -11,14 +11,14 @@ const router = createRouter({
       path: '/cards',
       name: 'cards',
       meta: { requiresAuth: true },
-      component: () => import('@/components/CardLayout.vue'),
-      children: [
-        {
-          path: ':id',
-          name: 'card-detail',
-          component: () => import('@/views/CardDetailView.vue'),
-        },
-      ],
+      component: () => import('@/views/CardManager.vue'),
+      // children: [
+      //   {
+      //     path: ':id',
+      //     name: 'card-detail',
+      //     component: () => import('@/views/CardDetailView.vue'),
+      //   },
+      // ],
     },
     {
       path: '/contacts',

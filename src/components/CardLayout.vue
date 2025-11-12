@@ -1,35 +1,69 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useCardManager } from '../composables/useCardManager.ts'
+import { onMounted, ref, watch } from 'vue'
+import { useAuth } from '../composables/useAuth.ts'
 import CardList from '../components/CardList.vue'
+import CardEditArea from '../components/CardEditArea.vue'
 
-// TODO: there is a minor issue if you add a card with no card selected
-// You have to click a couple of times for the active card to work
+const API_BASE = import.meta.env.VITE_API_BASE_URL
 
-const { activeCardIndex, fetchCards, isRoot } = useCardManager()
+// TODO: bring back router urls when selecting cards
+
+const { makeAuthenticatedRequest, user } = useAuth()
+
+const cards = ref([])
+const count = ref(0)
+const loading = ref(true)
+
+const activeCard = ref(null)
+const activeCardIndex = ref(null)
+
+watch(activeCardIndex, (index) => {
+  if (activeCardIndex.value !== null) {
+    activeCard.value = cards.value[index]
+  } else {
+    activeCard.value = null
+  }
+})
+
+async function fetchCards() {
+  // TODO: handle response codes
+
+  try {
+    const currentUser = user.value
+    const userId = currentUser?.data?.user?.id
+
+    if (!userId) {
+      loading.value = false
+      return
+    }
+
+    const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/?user_id=${userId}`, {
+      limit: 10,
+    })
+
+    return await response.json()
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function deleteCard() {
+  cards.value.splice(activeCardIndex.value, 1)
+  activeCardIndex.value = null
+}
 
 onMounted(async () => {
-  fetchCards()
+  const resp = await fetchCards()
+  cards.value = resp.items
+  count.value = resp.count
 })
 </script>
 
 <template>
-  <div class="relative flex h-full w-full">
-    <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle,#73737350_1px,transparent_1px)] bg-[size:10px_10px]"
-    />
-
-    <div :class="`${isRoot() ? '' : 'hidden'} sm:block bg-gray-100`">
-      <CardList />
-    </div>
-
-    <div
-      v-if="activeCardIndex === null"
-      class="flex justify-center items-center text-2xl w-full h-full"
-    >
-      <h4 class="w-full text-center">Select a card to get started</h4>
-    </div>
-
-    <router-view />
+  <div class="flex h-full w-full">
+    <CardList v-model:cards="cards" v-model:activeCardIndex="activeCardIndex" />
+    <CardEditArea v-model="activeCard" @submit-delete="deleteCard" />
   </div>
 </template>

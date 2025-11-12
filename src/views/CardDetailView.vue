@@ -49,7 +49,7 @@ watch(
   (newCard) => {
     mutableCard.value = structuredClone(toRaw(newCard))
   },
-  { initial: true },
+  { immediate: true },
 )
 
 watch(

@@ -1,21 +1,34 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
+import { watchDebounced } from '@vueuse/core'
 import InputContainer from '../components/InputContainer.vue'
 
-const emit = defineEmits(['submitDelete', 'submitDone', 'faviconReady'])
+const emit = defineEmits(['submitDelete', 'submitDone'])
+
 const editing = defineModel('editing', { default: false })
 const name = defineModel('name')
 const url = defineModel('url')
+const favicon = defineModel('favicon')
+
 const showError = ref(false)
-const favicon = computed(() => {
-  return getFaviconURL(url.value)
-})
+
+watchDebounced(
+  url,
+  (newUrl) => {
+    if (newUrl && !newUrl.startsWith('http')) {
+      newUrl = 'https://' + url.value
+    }
+
+    favicon.value = getFaviconURL(newUrl)
+  },
+  { immediate: true },
+)
 
 function getFaviconURL(url: string) {
   try {
     const u = new URL(url)
-    emit('faviconReady')
-    return `${u.origin}/favicon.ico`
+    const newUrl = `${u.origin}/favicon.ico`
+    return newUrl
   } catch {
     return null
   }
@@ -51,16 +64,6 @@ function handleSubmitDelete() {
   editing.value = false
   emit('submitDelete')
 }
-
-// import { watchDebounced } from '@vueuse/core'
-
-// watchDebounced(
-//   url,
-//   (newUrl) => {
-//     favicon.value = getFaviconURL(newUrl)
-//   },
-//   { initial: true, debounce: 500 },
-// )
 </script>
 
 <template>
