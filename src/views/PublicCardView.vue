@@ -73,6 +73,7 @@ onMounted(async () => {
       />
       <ContactForm
         v-else-if="card && showContactForm"
+        :cardUUID="card.uuid"
         :name="card?.name"
         class="w-120 max-w-120 max-h-[70vh] overflow-y-auto mt-[10vh] bg-white border border-black"
       />

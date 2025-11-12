@@ -1,8 +1,4 @@
 <script setup lang="ts">
-// TODO:
-// - ordering icons
-// - links to public business card
-
 import { useAuth } from '../composables/useAuth.ts'
 import DataTable from '../components/DataTable.vue'
 
@@ -10,8 +6,8 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 const { makeAuthenticatedRequest } = useAuth()
 
-async function fetchDirectory(limit, offset, ordering, search) {
-  let url = `${API_BASE}/api/cards/?public=true&limit=${limit}&offset=${offset}&ordering=${ordering}`
+async function fetchContacts(limit, offset, ordering, search) {
+  let url = `${API_BASE}/api/contacts/?&limit=${limit}&offset=${offset}&ordering=${ordering}`
 
   if (search) {
     url = `${url}&search=${search}`
@@ -36,9 +32,9 @@ async function fetchDirectory(limit, offset, ordering, search) {
   <div class="w-full h-full p-12 flex flex-col">
     <h2 class="text-3xl font-semibold">My Contacts</h2>
     <DataTable
-      :columns="['name', 'job_title', 'company', 'location']"
-      :columnNames="['Name', 'Job Title', 'Company', 'Location']"
-      :fetch="fetchDirectory"
+      :columns="['name', 'email', 'phone_fmt', 'job_title', 'company', 'message']"
+      :columnNames="['Name', 'Email', 'Phone', 'Job Title', 'Company', 'Message']"
+      :fetch="fetchContacts"
       :limitChoices="[5, 10, 25, 50, 100]"
     />
   </div>

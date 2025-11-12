@@ -39,14 +39,13 @@ async function fetchCards() {
   }
 }
 
-async function createCard(options = {}) {
+async function createCard() {
   // loading.value = true
 
   try {
     const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/`, {
       method: 'POST',
       body: JSON.stringify({}),
-      ...options,
     })
 
     if (response.ok) {

@@ -44,6 +44,7 @@ function handleLeave() {
 const buttonClasses = computed(() => [
   'relative border p-2 rounded-lg transition-transform duration-75 z-10',
   isPressed.value ? 'translate-y-0.5' : '-translate-y-0.2',
+  isHovered.value && props.enabled ? '-translate-y-[1px]' : '',
   props.enabled
     ? 'hover:cursor-pointer'
     : 'bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none',

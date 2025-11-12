@@ -23,12 +23,12 @@ const router = createRouter({
     {
       path: '/contacts',
       name: 'contacts',
-      components: {},
+      component: () => import('@/views/ContactsView.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/directory',
-      name: 'contacts',
+      name: 'directory',
       component: () => import('@/views/DirectoryView.vue'),
       // TODO: determine if this should be public
       meta: { requiresAuth: true },
