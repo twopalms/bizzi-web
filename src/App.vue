@@ -6,6 +6,7 @@ import LeftNav from './components/LeftNav.vue'
 const route = useRoute()
 
 const showNav = computed(() => {
+  // console.log(route.name)
   return !['login', 'signup', 'directory-detail'].includes(route.name)
 })
 </script>

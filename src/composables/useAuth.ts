@@ -1,13 +1,12 @@
 import { ref, computed } from 'vue'
 
-const user = ref<any>(null)
+const user = ref(null)
 const isAuthenticated = computed(() => !!user.value)
 const isCheckingAuth = ref(false)
 
-// CSRF Token utilities
 const getCsrfToken = (): string | null => {
   const cookies = document.cookie.split(';')
-  for (let cookie of cookies) {
+  for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=')
     if (name === 'csrftoken') {
       return value
@@ -53,7 +52,7 @@ const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) 
 }
 
 export function useAuth() {
-  const login = (userData: any) => {
+  const login = (userData) => {
     user.value = userData
     localStorage.setItem('user', JSON.stringify(userData))
   }

@@ -30,14 +30,13 @@ onClickOutside(target, () => (expanded.value = false))
 </script>
 
 <template>
-  <div>
+  <div ref="target">
     <div class="flex items-center gap-2 px-4">
       <span :style="{ width: `${width}px` }">{{ value }}</span>
       <i class="pi pi-sort-down-fill" />
     </div>
     <div class="relative">
       <div
-        ref="target"
         v-if="expanded"
         class="flex flex-col absolute top-3 bg-gray-100 border border-gray-200 w-[80%] justify-center"
       >

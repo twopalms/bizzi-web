@@ -63,6 +63,8 @@ router.beforeEach(async (to, from, next) => {
   const { isAuthenticated, checkAuth } = useAuth()
   await checkAuth()
 
+  console.log(isAuthenticated.value)
+
   if (to.meta.requiresAuth && !isAuthenticated.value) {
     next('/login')
   } else if ((to.path === '/signup' || to.path === '/login') && isAuthenticated.value) {

@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import parsePhoneNumber from 'libphonenumber-js'
 import { useAuth } from '../composables/useAuth.ts'
+import { useDateFormat } from '@vueuse/core'
 import DataTable from '../components/DataTable.vue'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
@@ -26,16 +28,25 @@ async function fetchContacts(limit, offset, ordering, search) {
     console.error(err)
   }
 }
+
+function formatPhone(val) {
+  try {
+    return parsePhoneNumber(val).formatInternational()
+  } catch {
+    return val
+  }
+}
 </script>
 
 <template>
   <div class="w-full h-full p-12 flex flex-col">
     <h2 class="text-3xl font-semibold">My Contacts</h2>
     <DataTable
-      :columns="['name', 'email', 'phone_fmt', 'job_title', 'company', 'message']"
-      :columnNames="['Name', 'Email', 'Phone', 'Job Title', 'Company', 'Message']"
+      :columns="['name', 'email', 'phone', 'job_title', 'company', 'created_at']"
+      :columnNames="['Name', 'Email', 'Phone', 'Job Title', 'Company', 'Created On']"
       :fetch="fetchContacts"
       :limitChoices="[5, 10, 25, 50, 100]"
+      :formatters="{ created_at: (val) => useDateFormat(val, 'YYYY-MM-DD'), phone: formatPhone }"
     />
   </div>
 </template>

@@ -3,6 +3,7 @@
 // - ordering icons
 // - links to public business card
 
+import parsePhoneNumber from 'libphonenumber-js'
 import { useAuth } from '../composables/useAuth.ts'
 import DataTable from '../components/DataTable.vue'
 
@@ -30,16 +31,25 @@ async function fetchDirectory(limit, offset, ordering, search) {
     console.error(err)
   }
 }
+
+function formatPhone(val) {
+  try {
+    return parsePhoneNumber(val).formatInternational()
+  } catch {
+    return val
+  }
+}
 </script>
 
 <template>
   <div class="w-full h-full p-12 flex flex-col">
-    <h2 class="text-3xl font-semibold">My Contacts</h2>
+    <h2 class="text-3xl font-semibold">Public Directory</h2>
     <DataTable
-      :columns="['name', 'job_title', 'company', 'location']"
-      :columnNames="['Name', 'Job Title', 'Company', 'Location']"
+      :columns="['name', 'job_title', 'company', 'phone', 'location']"
+      :columnNames="['Name', 'Job Title', 'Company', 'Phone', 'Location']"
       :fetch="fetchDirectory"
-      :limitChoices="[5, 10, 25, 50, 100]"
+      :limitChoices="[25, 50, 100]"
+      :formatters="{ phone: formatPhone }"
     />
   </div>
 </template>

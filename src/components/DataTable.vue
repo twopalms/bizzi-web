@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
-import parsePhoneNumber from 'libphonenumber-js'
 import AirButton from '../components/AirButton.vue'
 import DropDownMenu from '../components/DropDownMenu.vue'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
@@ -17,6 +16,9 @@ const props = defineProps({
   limitChoices: {
     type: Array<number>,
     default: [25, 50, 100],
+  },
+  formatters: {
+    default: () => {},
   },
 })
 
@@ -42,22 +44,17 @@ const ordering = computed(() => {
     return '-created_at'
   }
 
-  const field = columns[sortColumn.value]
+  const field = props.columns[sortColumn.value]
   return `${sortDirection.value}${field}`
 })
 
 function formatCell(item: object, key: string) {
-  // TODO: make this passable as a prop for a certain column
-  let value = item[key]
+  if (!props.formatters) return item[key]
 
-  if (key === 'phone') {
-    try {
-      value = parsePhoneNumber(value).formatNational()
-    } catch {
-      console.warn('unable to parse phone number')
-    }
-  }
-  return value
+  const formatter = props.formatters[key]
+  if (!formatter) return item[key]
+
+  return formatter(item[key])
 }
 
 const pageEnd = computed(() => {
@@ -140,7 +137,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto rounded-lg border border-gray-300 shadow-md z-0">
+    <div class="flex overflow-y-auto rounded-lg border border-gray-300 shadow-md z-0">
       <table class="min-w-full">
         <thead class="bg-blue-200 sticky top-0">
           <tr>
@@ -151,6 +148,11 @@ onMounted(async () => {
               class="px-4 py-2 text-left text-sm font-semibold text-gray-700 hover:bg-blue-300/60 hover:cursor-pointer select-none"
             >
               {{ columnNames[i] }}
+              <i
+                v-if="sortColumn == i"
+                class="pi ml-2"
+                :class="sortDirection == '-' ? 'pi-arrow-down' : 'pi-arrow-up'"
+              />
             </th>
           </tr>
         </thead>
