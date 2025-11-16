@@ -12,12 +12,12 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  server: {
-    https: {
-      key: fs.readFileSync('./certs/localhost+1-key.pem'),
-      cert: fs.readFileSync('./certs/localhost+1.pem'),
-    },
-    host: '127.0.0.1',
-    port: 3000,
-  },
+  // server: {
+  //   https: {
+  //     key: fs.readFileSync('./certs/localhost+1-key.pem'),
+  //     cert: fs.readFileSync('./certs/localhost+1.pem'),
+  //   },
+  //   host: '127.0.0.1',
+  //   port: 3000,
+  // },
 })
