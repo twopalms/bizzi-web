@@ -8,3 +8,16 @@
 html {
   font-size: 15px;
 }
+
+/* Text-like inputs only */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='search'],
+input[type='url'],
+input[type='tel'],
+input[type='number'] {
+  @apply flex flex-grow bg-white rounded-lg p-2 border border-black
+         shadow-[inset_0_2px_0_0_#9ca3af,inset_0_-2px_0_0_#ffffff]
+         focus:outline-none focus:ring-0;
+}

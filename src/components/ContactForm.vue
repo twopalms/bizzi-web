@@ -32,7 +32,7 @@ async function submitForm() {
   Object.assign(body, data.value)
 
   try {
-    const response = await makeAuthenticatedRequest(`${API_BASE}/api/contacts/`, {
+    const response = await makeAuthenticatedRequest(`${API_BASE}/contacts/`, {
       method: 'POST',
       body: JSON.stringify(body),
     })

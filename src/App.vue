@@ -4,20 +4,16 @@ import { useRoute } from 'vue-router'
 import LeftNav from './components/LeftNav.vue'
 
 const route = useRoute()
-
 const showNav = computed(() => {
-  // console.log(route.name)
+  if (!route.name) return false
   return !['login', 'signup', 'directory-detail'].includes(route.name)
 })
 </script>
 
 <template>
-  <router-view v-if="!showNav" class="font-custom" />
+  <router-view v-if="!showNav" class="h-screen font-custom" />
   <div v-else class="h-screen flex font-custom overflow-hidden">
     <LeftNav v-if="showNav" />
     <router-view />
-    <!-- <div class="flex-1 overflow-y-auto"> -->
-    <!--   <router-view /> -->
-    <!-- </div> -->
   </div>
 </template>

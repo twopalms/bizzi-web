@@ -6,7 +6,7 @@ import NavList from './NavList.vue'
 const mainNav = [
   { icon: 'pi-id-card', url: '/cards', label: 'Cards' },
   { icon: 'pi-phone', url: '/contacts', label: 'Contacts' },
-  { icon: 'pi-sparkles', url: '/directory', label: 'Directory' },
+  // { icon: 'pi-sparkles', url: '/directory', label: 'Directory' },
 ]
 const bottomNav = [{ icon: 'pi-user', url: '/account', label: 'Account' }]
 

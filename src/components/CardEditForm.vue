@@ -96,7 +96,7 @@ async function uploadProfilePicture(file: object) {
   formData.append('file', file, file.name)
 
   try {
-    const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/picture/`, {
+    const response = await makeAuthenticatedRequest(`${API_BASE}/cards/${id}/picture/`, {
       method: 'PUT',
       body: formData,
     })
@@ -112,7 +112,7 @@ async function deleteProfilePicture() {
   const id = referenceCard.value.uuid
 
   try {
-    const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/picture/`, {
+    const response = await makeAuthenticatedRequest(`${API_BASE}/cards/${id}/picture/`, {
       method: 'DELETE',
     })
 
@@ -133,7 +133,7 @@ async function patchCard(data: object): Card {
   // TODO: handle response codes
 
   try {
-    const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/`, {
+    const response = await makeAuthenticatedRequest(`${API_BASE}/cards/${id}/`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
@@ -177,7 +177,7 @@ async function deleteCard() {
   const id = referenceCard.value.uuid
 
   try {
-    const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/${id}/`, {
+    const response = await makeAuthenticatedRequest(`${API_BASE}/cards/${id}/`, {
       method: 'DELETE',
     })
 

@@ -9,7 +9,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL
 const { makeAuthenticatedRequest } = useAuth()
 
 async function fetchContacts(limit, offset, ordering, search) {
-  let url = `${API_BASE}/api/contacts/?&limit=${limit}&offset=${offset}&ordering=${ordering}`
+  let url = `${API_BASE}/contacts/?&limit=${limit}&offset=${offset}&ordering=${ordering}`
 
   if (search) {
     url = `${url}&search=${search}`

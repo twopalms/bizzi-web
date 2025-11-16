@@ -6,6 +6,7 @@ const isCheckingAuth = ref(false)
 
 const getCsrfToken = (): string | null => {
   const cookies = document.cookie.split(';')
+  console.log(document.cookie)
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=')
     if (name === 'csrftoken') {
@@ -17,8 +18,8 @@ const getCsrfToken = (): string | null => {
 
 const fetchCsrfToken = async (): Promise<void> => {
   try {
-    await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/csrf`, {
-      method: 'POST',
+    await fetch(`${import.meta.env.VITE_API_BASE_URL}/csrf`, {
+      method: 'GET',
       credentials: 'include',
     })
   } catch (error) {
@@ -115,6 +116,7 @@ export function useAuth() {
 
   return {
     user: user,
+    fetchCsrfToken,
     isAuthenticated,
     isCheckingAuth,
     login,

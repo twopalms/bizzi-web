@@ -1,7 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import CardManager from '../views/CardManager.vue'
+import ContactsView from '../views/ContactsView.vue'
 import SignupView from '../views/SignupView.vue'
 import LoginView from '../views/LoginView.vue'
 import AccountView from '../views/AccountView.vue'
+import PublicCardView from '../views/PublicCardView.vue'
 import { useAuth } from '../composables/useAuth'
 
 const router = createRouter({
@@ -11,7 +14,7 @@ const router = createRouter({
       path: '/cards',
       name: 'cards',
       meta: { requiresAuth: true },
-      component: () => import('@/views/CardManager.vue'),
+      component: CardManager,
       // children: [
       //   {
       //     path: ':id',
@@ -23,20 +26,20 @@ const router = createRouter({
     {
       path: '/contacts',
       name: 'contacts',
-      component: () => import('@/views/ContactsView.vue'),
+      component: ContactsView,
       meta: { requiresAuth: true },
     },
-    {
-      path: '/directory',
-      name: 'directory',
-      component: () => import('@/views/DirectoryView.vue'),
-      // TODO: determine if this should be public
-      meta: { requiresAuth: true },
-    },
+    // {
+    //   path: '/directory',
+    //   name: 'directory',
+    //   component: () => import('@/views/DirectoryView.vue'),
+    //   // TODO: determine if this should be public
+    //   meta: { requiresAuth: true },
+    // },
     {
       path: '/directory/:slug',
       name: 'directory-detail',
-      component: () => import('@/views/PublicCardView.vue'),
+      component: PublicCardView,
     },
     {
       path: '/account',
@@ -62,8 +65,6 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const { isAuthenticated, checkAuth } = useAuth()
   await checkAuth()
-
-  console.log(isAuthenticated.value)
 
   if (to.meta.requiresAuth && !isAuthenticated.value) {
     next('/login')

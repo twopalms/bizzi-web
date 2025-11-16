@@ -27,7 +27,7 @@ async function fetchCards() {
       return
     }
 
-    const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/?user_id=${userId}`, {
+    const response = await makeAuthenticatedRequest(`${API_BASE}/cards/?user_id=${userId}`, {
       limit: 10,
     })
 
@@ -43,7 +43,7 @@ async function createCard() {
   // loading.value = true
 
   try {
-    const response = await makeAuthenticatedRequest(`${API_BASE}/api/cards/`, {
+    const response = await makeAuthenticatedRequest(`${API_BASE}/cards/`, {
       method: 'POST',
       body: JSON.stringify({}),
     })

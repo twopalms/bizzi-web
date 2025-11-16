@@ -23,7 +23,7 @@ const showContactForm = ref(false)
 
 async function fetchPublicCard() {
   const slug = route.params.slug
-  const url = `${API_BASE}/api/cards/?slug=${slug}`
+  const url = `${API_BASE}/cards/?slug=${slug}`
 
   try {
     const resp = await makeAuthenticatedRequest(url, { method: 'GET' })
