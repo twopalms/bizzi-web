@@ -6,7 +6,6 @@ const isCheckingAuth = ref(false)
 
 const getCsrfToken = (): string | null => {
   const cookies = document.cookie.split(';')
-  console.log(document.cookie)
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=')
     if (name === 'csrftoken') {
