@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 import AuthForm from '../components/AuthForm.vue'
+import GoogleOAuth from '../components/GoogleOAuth.vue'
 
-const { fetchCsrfToken, login, makeAuthenticatedRequest } = useAuth()
+const { login, makeAuthenticatedRequest } = useAuth()
 
 const email = ref('')
 const password = ref('')
@@ -64,6 +65,7 @@ async function handleSignUp() {
       v-model:password="password"
       label="Sign Up"
     />
+    <GoogleOAuth />
     <p>
       Already have an account?
       <router-link to="/login" class="underline text-blue-500 hover:cursor-pointer"
