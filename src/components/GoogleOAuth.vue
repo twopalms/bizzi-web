@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useRouter } from 'vue'
+import { useRouter } from 'vue-router'
 
 const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 
-const { router } = useRouter()
+const router = useRouter()
 
 async function loginCallback() {
   router.push('/cards')
