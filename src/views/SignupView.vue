@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 import AuthForm from '../components/AuthForm.vue'
-import GoogleOAuth from '../components/GoogleOAuth.vue'
+import GoogleOAuth from '../components/GoogleOAuth2.vue'
 
 const { login, makeAuthenticatedRequest } = useAuth()
 
