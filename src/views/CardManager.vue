@@ -6,7 +6,7 @@ import CardEditArea from '../components/CardEditArea.vue'
 // TODO: bring back router urls when selecting cards
 
 const cards = ref([])
-const activeCardIndex = ref(null)
+const activeCardIndex = ref(-1)
 
 const activeCard = computed({
   get() {

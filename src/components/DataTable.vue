@@ -113,12 +113,7 @@ onMounted(async () => {
 <template>
   <template v-if="!loading">
     <div class="flex justify-between items-center z-10">
-      <input
-        v-model="searchText"
-        type="text"
-        placeholder="Search"
-        class="flex bg-white rounded-lg border border-black shadow-[inset_0_2px_0_0_#9ca3af,inset_0_-2px_0_0_#ffffff] focus:outline-none focus:ring-0 p-2 my-4"
-      />
+      <input v-model="searchText" type="text" placeholder="Search" class="flex p-2 my-4 mr-8" />
       <div class="flex items-center gap-6">
         <AirButton @click="limitMenuExpanded = !limitMenuExpanded">
           <div class="flex items-center hover:cursor-pointer">

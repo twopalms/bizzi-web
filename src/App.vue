@@ -11,8 +11,8 @@ const showNav = computed(() => {
 </script>
 
 <template>
-  <router-view v-if="!showNav" class="h-screen font-custom" />
-  <div v-else class="h-screen flex font-custom overflow-hidden">
+  <router-view v-if="!showNav" class="h-screen font-[Quicksand]" />
+  <div v-else class="h-screen flex font-[Quicksand] overflow-hidden">
     <LeftNav v-if="showNav" />
     <router-view />
   </div>

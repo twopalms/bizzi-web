@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { Head } from '@unhead/vue/components'
 import { useAuth } from '../composables/useAuth.ts'
 import AirButton from '../components/AirButton.vue'
 import BizziCard from '../components/BizziCard.vue'
@@ -58,6 +59,10 @@ onMounted(async () => {
 </script>
 
 <template>
+  <Head>
+    <title>{{ card?.name ? `${card.name} - Bizzi` : 'Loading Card...' }}</title>
+    <meta name="description" :content="`${card?.name} - Bizzi Card`" />
+  </Head>
   <NotFound v-if="notFound" />
   <div
     v-else-if="!loading"

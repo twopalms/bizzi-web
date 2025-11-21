@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Head } from '@unhead/vue/components'
 import { useAuth } from '../composables/useAuth'
 import AuthForm from '../components/AuthForm.vue'
-import GoogleOAuth from '../components/GoogleOAuth2.vue'
 
 const { login, makeAuthenticatedRequest } = useAuth()
 
@@ -57,21 +57,26 @@ async function handleSignUp() {
 </script>
 
 <template>
-  <div class="h-full w-full flex flex-col gap-8 items-center justify-center">
-    <h1 class="text-2xl text-center">Create Account</h1>
-    <AuthForm
-      @submit="handleSignUp"
-      v-model:email="email"
-      v-model:password="password"
-      label="Sign Up"
-    />
-    <GoogleOAuth />
-    <p>
-      Already have an account?
-      <router-link to="/login" class="underline text-blue-500 hover:cursor-pointer"
-        >Sign in</router-link
-      >
-      instead.
-    </p>
+  <div class="h-full w-full flex justify-center">
+    <Head>
+      <title>Sign Up | Bizzi</title>
+      <meta name="description" content="Bizzi Sign Up Page" />
+    </Head>
+    <div class="flex flex-col w-100 items-center justify-center gap-8">
+      <h1 class="text-2xl text-center">Create Account</h1>
+      <AuthForm
+        @submit="handleSignUp"
+        v-model:email="email"
+        v-model:password="password"
+        label="Sign Up"
+      />
+      <p>
+        Already have an account?
+        <router-link to="/login" class="underline text-blue-500 hover:cursor-pointer"
+          >Sign in</router-link
+        >
+        instead.
+      </p>
+    </div>
   </div>
 </template>
