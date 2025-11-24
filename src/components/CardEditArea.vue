@@ -28,17 +28,16 @@ watch(
   </div>
 
   <div v-else class="relative flex h-full w-full">
-    <div class="flex flex-grow pr-[400px] h-full overflow-y-auto">
-      <div class="w-full flex justify-center min-h-full">
-        <div class="max-w-120 w-full my-auto">
-          <BizziCard v-if="mutableCard" color="#4fd4d6" :card="mutableCard" />
-        </div>
-      </div>
+    <div class="flex h-full w-full items-center justify-center overflow-y-auto">
+      <BizziCard
+        v-if="mutableCard"
+        color="#4fd4d6"
+        :card="mutableCard"
+        class="w-120 max-w-120 max-h-[70vh] overflow-y-auto"
+      />
     </div>
 
-    <div
-      class="absolute right-0 top-0 h-full w-[400px] bg-gray-100 border-l-2 border-gray-300 flex-shrink-0 overflow-y-auto"
-    >
+    <div class="h-full w-100 min-w-100 bg-gray-100 border-l-2 border-gray-300 overflow-y-auto">
       <CardEditForm
         v-model:mutableCard="mutableCard"
         v-model:referenceCard="card"

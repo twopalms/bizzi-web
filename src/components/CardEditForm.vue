@@ -204,8 +204,8 @@ async function deleteCard() {
     <div class="flex flex-1 flex-col">
       <CardEditSection title="Header">
         <label>Picture</label>
-        <div class="flex flex-1 items-center">
-          <FileUpload v-model="mutableCard.picture" class="w-full mr-4" />
+        <div class="flex flex-1 gap-3 items-center">
+          <FileUpload v-model="mutableCard.picture" />
           <AirButton
             @click="() => (mutableCard.picture = null)"
             :enabled="Boolean(mutableCard.picture)"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import AirButton from '../components/AirButton.vue'
 
 const file = defineModel<File | null>()
 
@@ -13,6 +14,10 @@ const preview = computed(() => {
   if (!file.value) return 'Upload'
 
   if (typeof file.value === 'object') {
+    const fileLength = file.value.name.length
+    if (fileLength > 25) {
+      return '...' + file.value.name.slice(-22)
+    }
     return file.value.name
   } else {
     return 'Upload'
@@ -21,13 +26,14 @@ const preview = computed(() => {
 </script>
 
 <template>
-  <div class="relative h-8 border-gray-500 border">
-    <span class="absolute inset-0 flex items-center justify-center">{{ preview }}</span>
+  <AirButton @click="$refs.pictureUpload.click()" class="w-full">
+    <span class="text-ellipses">{{ preview }}</span>
     <input
       @change="handleFileChange"
       type="file"
+      ref="pictureUpload"
       accept="image/*"
-      class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+      class="hidden"
     />
-  </div>
+  </AirButton>
 </template>

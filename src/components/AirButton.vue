@@ -67,7 +67,7 @@ const shadowClasses = computed(() => [
   >
     <span
       :class="shadowClasses"
-      :style="props.enabled ? { backgroundColor: shadowColor } : {}"
+      :style="props.enabled ? { backgroundColor: '#000000' } : {}"
     ></span>
 
     <div :class="buttonClasses" :style="props.enabled ? { backgroundColor: bgColor } : {}">

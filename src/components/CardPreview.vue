@@ -16,11 +16,8 @@ defineProps<Props>()
 
 <template>
   <div
-    :class="[
-      'p-4 min-h-30 shadow-md rounded-md flex flex-col justify-between',
-      'bg-white border border-blue-200 hover:border-blue-500',
-      isActive ? 'border-blue-500' : '',
-    ]"
+    class="p-4 min-h-30 shadow-md rounded-md flex flex-col justify-between select-none bg-white border border-blue-200 hover:border-blue-500"
+    :class="[isActive ? 'border-blue-500' : '']"
   >
     <div class="font-semibold">{{ card.name || 'Untitled Card' }}</div>
     <div>
