@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import AirButton from '../components/AirButton.vue'
-import InputWrapper from '../components/InputWrapper.vue'
+import FormField from '../components/FormField.vue'
 import GoogleOAuth from '../components/GoogleOAuth.vue'
 
 defineEmits(['submit'])
@@ -35,14 +35,14 @@ const passwordError = computed(() => {
 <template>
   <div class="flex flex-col gap-4 w-full">
     <div class="flex flex-col gap-4 border rounded-lg p-4 bg-gray-100">
-      <InputWrapper label="Email">
+      <FormField label="Email">
         <input v-model.trim="email" type="email" />
         <small v-if="emailError" class="text-red-800">{{ emailError }}</small>
-      </InputWrapper>
-      <InputWrapper label="Password">
+      </FormField>
+      <FormField label="Password">
         <input v-model.trim="password" :type="passwordInputType || 'password'" />
         <small v-if="passwordError" class="text-red-800">{{ passwordError }}</small>
-      </InputWrapper>
+      </FormField>
       <div class="flex gap-3 hover:cursor-pointer">
         <input v-model="showPassword" type="checkbox" class="hover:cursor-pointer" />
         <label

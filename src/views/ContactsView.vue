@@ -4,6 +4,8 @@ import { useAuth } from '../composables/useAuth.ts'
 import { useDateFormat } from '@vueuse/core'
 import DataTable from '../components/DataTable.vue'
 
+// TODO: handle empty table
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 const { makeAuthenticatedRequest } = useAuth()

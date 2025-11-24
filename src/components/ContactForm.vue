@@ -2,17 +2,18 @@
 import { ref } from 'vue'
 import { useAuth } from '../composables/useAuth.ts'
 import AirButton from '../components/AirButton.vue'
-import InputContainer from '../components/InputContainer.vue'
+import FormField from '../components/FormField.vue'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
 const { makeAuthenticatedRequest } = useAuth()
+
+const emit = defineEmits(['submit'])
 
 const props = defineProps({
   cardUUID: String,
   name: String,
 })
 
-// TODO: validate email/phone
 const data = ref({
   name: null,
   email: null,
@@ -31,6 +32,8 @@ async function submitForm() {
 
   Object.assign(body, data.value)
 
+  // TODO: validate data and update error message if not valid
+
   try {
     const response = await makeAuthenticatedRequest(`${API_BASE}/contacts/`, {
       method: 'POST',
@@ -39,57 +42,37 @@ async function submitForm() {
 
     if (response.ok) {
       showSubmitSuccess.value = true
+      emit('submit')
       return await response.json()
     } else {
-      // error.value = (await response.json()).detail
       return { success: false, error: 'Failed to create card' }
     }
   } catch (err) {
     console.error(err)
-    // error.value = err.toString()
   }
 }
 </script>
 
 <template>
   <div class="p-6 flex flex-col gap-4 rounded-xl">
-    <InputContainer
-      v-model="data['name']"
-      label="Name"
-      placeholder="John Doe"
-      element="input"
-      :required="true"
-    />
-    <InputContainer
-      v-model="data['email']"
-      label="Email"
-      placeholder="john.doe@gmail.com"
-      element="input"
-    />
-    <InputContainer
-      v-model="data['phone']"
-      label="Phone"
-      placeholder="+1 555 123 4567"
-      element="input"
-    />
-    <InputContainer
-      v-model="data['job_title']"
-      label="Job Title"
-      placeholder="Roofer"
-      element="input"
-    />
-    <InputContainer
-      v-model="data['company']"
-      label="Company"
-      placeholder="John's Roofing"
-      element="input"
-    />
-    <InputContainer
-      v-model="data['message']"
-      label="Message"
-      placeholder="Say hello"
-      element="textarea"
-    />
+    <FormField label="Name" :required="true">
+      <input v-model.trim="data['name']" type="text" placeholder="John Doe" />
+    </FormField>
+    <FormField label="Email">
+      <input v-model.trim="data['email']" type="text" placeholder="john.doe@gmail.com" />
+    </FormField>
+    <FormField label="Phone">
+      <input v-model.trim="data['phone']" type="text" placeholder="+1 555 123 4567" />
+    </FormField>
+    <FormField label="Job Title">
+      <input v-model.trim="data['job_title']" type="text" placeholder="Roofer" />
+    </FormField>
+    <FormField label="Company">
+      <input v-model.trim="data['company']" type="text" placeholder="John's Roofing" />
+    </FormField>
+    <FormField label="Message">
+      <textarea v-model.trim="data['message']" rows="5" placeholder="Say hello" />
+    </FormField>
     <template v-if="!showSubmitSuccess">
       <p class="text-xs text-center">
         This information will only be shared with <span class="font-semibold">{{ name }}</span>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { watchDebounced } from '@vueuse/core'
-import InputContainer from '../components/InputContainer.vue'
+import FormField from '../components/FormField.vue'
 
 const emit = defineEmits(['submitDelete', 'submitDone'])
 
@@ -64,6 +64,10 @@ function handleSubmitDelete() {
   editing.value = false
   emit('submitDelete')
 }
+
+const linkError = computed(() => {
+  return isValidUrl(url.value) ? '' : 'Invalid URL'
+})
 </script>
 
 <template>
@@ -87,14 +91,16 @@ function handleSubmitDelete() {
     </button>
   </div>
   <div v-if="editing" class="flex flex-col gap-3">
-    <InputContainer v-model="name" label="Name" placeholder="Instagram" element="input" />
-    <InputContainer
-      v-model="url"
-      label="URL"
-      placeholder="https://instagram.com"
-      element="input"
-      :validator="(val) => (isValidUrl(val) ? '' : 'Invalid URL')"
-      :showError="showError"
-    />
+    <FormField label="Name">
+      <input v-model.trim="name" placeholder="Instagram" type="text" />
+    </FormField>
+    <FormField label="URL" :error="linkError" :showError="showError">
+      <input
+        @input="showError = false"
+        v-model.trim="url"
+        placeholder="https://instagram.com"
+        type="url"
+      />
+    </FormField>
   </div>
 </template>

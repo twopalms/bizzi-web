@@ -70,8 +70,7 @@ async function handleCreateCard() {
   }
   const newCard = await createCard()
   cards.value.push(newCard)
-  activeCardIndex.value += 1
-  // activeCardIndex.value = cardList.value.indexOf(newCard)
+  activeCardIndex.value = cards.value.length - 1
 }
 
 function handlePreviewClick(index) {
@@ -99,7 +98,12 @@ onMounted(async () => {
       <div v-else class="flex flex-col p-4 gap-4">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-2xl text-gray-600 font-semibold">My Cards</h2>
-          <AirButton @click="handleCreateCard">+ Add</AirButton>
+          <AirButton @click="handleCreateCard">
+            <div class="flex items-center gap-3">
+              <i class="pi pi-file-plus" />
+              <span class="font-semibold">Add</span>
+            </div>
+          </AirButton>
         </div>
 
         <ul>

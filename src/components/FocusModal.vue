@@ -5,13 +5,16 @@ const show = defineModel<boolean>()
 <template>
   <transition name="fade">
     <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative">
+      <div
+        class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative max-h-[85vh] overflow-y-auto"
+      >
         <button
           class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 hover:cursor-pointer"
           @click="show = false"
         >
           ✕
         </button>
+
         <slot></slot>
       </div>
     </div>
