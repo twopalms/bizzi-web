@@ -8,10 +8,6 @@ import BizziCardUnit from '../components/BizziCardUnit.vue'
 
 const props = defineProps({
   card: Object,
-  color: {
-    type: String,
-    default: '#065f46',
-  },
 })
 
 const cleanWebsite = computed(() => {
@@ -58,27 +54,40 @@ function getFavicon(url: string) {
   }
 }
 
-function displayProfilePicture(value: string | object) {
-  if (!value) return
+const profilePicture = computed(() => {
+  if (!props.card.picture) return
 
-  if (typeof value === 'string') {
-    return value
-  } else if (typeof value === 'object') {
-    return URL.createObjectURL(value)
+  if (typeof props.card.picture === 'string') {
+    return props.card.picture
+  } else if (typeof props.card.picture === 'object') {
+    return URL.createObjectURL(props.card.picture)
   } else {
     console.error('Bad profile picture object')
   }
-}
+
+  return null
+})
 </script>
 
 <template>
   <div class="flex flex-col rounded-lg bg-white border border-black">
+    <!-- <div -->
+    <!--   class="bg-[var(--cardColor)] flex items-center h-36 min-h-36 max-h-36 rounded-t-lg" -->
+    <!--   :style="`--cardColor: ${card.color}`" -->
+    <!-- > -->
+    <!--   <img v-if="profilePicture" :src="profilePicture" /> -->
+    <!-- </div> -->
     <div
-      class="bg-[var(--cardColor)] flex items-center justify-end min-h-36 max-h-36 rounded-t-lg"
-      :style="`--cardColor: ${color}`"
+      class="relative bg-[var(--cardColor)] h-36 min-h-36 max-h-36 rounded-t-lg"
+      :style="`--cardColor: ${card.color}`"
     >
-      <img :src="displayProfilePicture(card.picture)" class="rounded-full w-auto h-36 m-4 p-4" />
+      <img
+        v-if="profilePicture"
+        :src="profilePicture"
+        class="absolute right-0 top-0 h-full w-1/3 object-cover rounded-lg"
+      />
     </div>
+
     <div class="p-6">
       <!-- Basic Info --->
       <div v-if="card.name" class="text-4xl font-semibold">{{ card.name }}</div>
@@ -91,23 +100,23 @@ function displayProfilePicture(value: string | object) {
       <div v-if="hasContactInfo">
         <div
           class="flex flex-col bg-[var(--cardColor)] h-0.5 my-4"
-          :style="`--cardColor: ${color}`"
+          :style="`--cardColor: ${card.color}`"
         />
 
         <!-- Contact Info --->
-        <BizziCardUnit v-if="card.email" :color="color" :copyValue="card.email">
+        <BizziCardUnit v-if="card.email" :color="card.color" :copyValue="card.email">
           <div class="flex gap-3 items-center px-2">
             <i class="pi pi-envelope" />
             <span>{{ card.email }}</span>
           </div>
         </BizziCardUnit>
-        <BizziCardUnit v-if="card.phone" :color="color" :copyValue="card.phone">
+        <BizziCardUnit v-if="card.phone" :color="card.color" :copyValue="card.phone">
           <div class="flex gap-3 items-center px-2">
             <i class="pi pi-phone" />
             <span>{{ formatPhone(card.phone) }}</span>
           </div>
         </BizziCardUnit>
-        <BizziCardUnit v-if="cleanWebsite" :color="color" :copyValue="cleanWebsite">
+        <BizziCardUnit v-if="cleanWebsite" :color="card.color" :copyValue="cleanWebsite">
           <div class="flex gap-3 items-center px-2">
             <i class="pi pi-globe" />
             <a :href="cleanWebsite" target="_blank" class="hover:text-blue-800 hover:underline">
@@ -121,11 +130,11 @@ function displayProfilePicture(value: string | object) {
       <div v-if="card.links.length !== 0">
         <div
           class="flex flex-col bg-[var(--cardColor)] h-0.5 my-4"
-          :style="`--cardColor: ${color}`"
+          :style="`--cardColor: ${card.color}`"
         />
         <ol>
           <li v-for="(link, index) in card.links" :key="index">
-            <BizziCardUnit :color="color" :copyValue="link.url">
+            <BizziCardUnit :color="card.color" :copyValue="link.url">
               <div class="flex gap-3 items-center px-2">
                 <img height="16" width="16" :src="getFavicon(link.url)" />
                 <a

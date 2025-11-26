@@ -2,6 +2,8 @@
 import { computed, ref, toRaw, watch } from 'vue'
 import parsePhoneNumber from 'libphonenumber-js'
 import { useAuth } from '../composables/useAuth.ts'
+import { CircleStencil, Cropper } from 'vue-advanced-cropper'
+import 'vue-advanced-cropper/dist/style.css'
 import AirButton from '../components/AirButton.vue'
 import CardEditSection from '../components/CardEditSection.vue'
 import FormField from '../components/FormField.vue'
@@ -20,6 +22,9 @@ const mutableCard = defineModel('mutableCard', { default: {} })
 const hasPendingChanges = ref(false)
 const showDeleteConfirmation = ref(false)
 const showSaveSuccess = ref(false)
+const showCropper = ref(false)
+const cropperInput = ref(null)
+const cropperOutput = ref(null)
 
 function isPhoneValid(value: string) {
   try {
@@ -32,7 +37,7 @@ function isPhoneValid(value: string) {
 
 watch(
   mutableCard,
-  (newCard) => {
+  async (newCard) => {
     hasPendingChanges.value = JSON.stringify(newCard) !== JSON.stringify(referenceCard.value)
   },
   { deep: true },
@@ -169,6 +174,46 @@ async function deleteCard() {
   } finally {
   }
 }
+
+const toBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+  })
+
+async function handleFileUploadChange(val) {
+  // NOTE: instead of using a v-model to keep the card picture in sync,
+  // we can use an emit from the file upload component. The file is read
+  // async which causes some ref sync issues.
+  // mutableCard.value.picture = val
+  cropperInput.value = await toBase64(val)
+  showCropper.value = true
+}
+
+function cropperChange({ canvas }) {
+  cropperOutput.value = canvas.toDataURL()
+}
+
+function dataURLtoFile(dataurl, filename) {
+  var arr = dataurl.split(','),
+    mime = arr[0].match(/:(.*?);/)[1],
+    bstr = atob(arr[arr.length - 1]),
+    n = bstr.length,
+    u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new File([u8arr], filename, { type: mime })
+}
+
+// TODO: store original version and cropped version separately
+function confirmCropper() {
+  const croppedImage = dataURLtoFile(cropperOutput.value)
+  mutableCard.value.picture = croppedImage
+  showCropper.value = false
+}
 </script>
 
 <template>
@@ -203,16 +248,36 @@ async function deleteCard() {
     </FocusModal>
     <div class="flex flex-1 flex-col">
       <CardEditSection title="Header">
-        <label>Picture</label>
-        <div class="flex flex-1 gap-3 items-center">
-          <FileUpload v-model="mutableCard.picture" />
-          <AirButton
-            @click="() => (mutableCard.picture = null)"
-            :enabled="Boolean(mutableCard.picture)"
-          >
-            Clear
-          </AirButton>
-        </div>
+        <FormField label="Color">
+          <input
+            v-model="mutableCard.color"
+            type="color"
+            class="w-full hover:cursor-pointer outline-gray-800 outline -outline-offset-1 rounded-lg"
+            :style="`--cardColor: ${mutableCard.color}`"
+          />
+        </FormField>
+        <FormField label="Picture">
+          <div class="flex flex-1 gap-3 items-center">
+            <FileUpload @change="handleFileUploadChange" />
+            <AirButton
+              @click="() => (mutableCard.picture = null)"
+              :enabled="Boolean(mutableCard.picture)"
+            >
+              Clear
+            </AirButton>
+            <FocusModal v-model="showCropper">
+              <div class="flex flex-col items-center justify-center gap-3">
+                <cropper
+                  @change="cropperChange"
+                  class="cropper"
+                  :src="cropperInput"
+                  :stencilComponent="CircleStencil"
+                />
+                <AirButton @click="confirmCropper">Confirm</AirButton>
+              </div>
+            </FocusModal>
+          </div>
+        </FormField>
       </CardEditSection>
       <CardEditSection title="Basic Information">
         <FormField label="Full Name">

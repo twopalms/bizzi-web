@@ -2,12 +2,13 @@
 import { computed, ref } from 'vue'
 import AirButton from '../components/AirButton.vue'
 
-const file = defineModel<File | null>()
+const emit = defineEmits(['change'])
+const file = ref(null)
 
-async function handleFileChange() {
-  const target = event.target as HTMLInputElement
+async function handleChange(e: Event) {
+  const target = e.target as HTMLInputElement
   const selected = target.files?.[0]
-  file.value = selected
+  emit('change', selected)
 }
 
 const preview = computed(() => {
@@ -27,13 +28,10 @@ const preview = computed(() => {
 
 <template>
   <AirButton @click="$refs.pictureUpload.click()" class="w-full">
-    <span class="text-ellipses">{{ preview }}</span>
-    <input
-      @change="handleFileChange"
-      type="file"
-      ref="pictureUpload"
-      accept="image/*"
-      class="hidden"
-    />
+    <div class="flex gap-2 items-center justify-center">
+      <i class="pi pi-cloud-upload" />
+      <span class="text-ellipses">{{ preview }}</span>
+    </div>
+    <input @change="handleChange" type="file" ref="pictureUpload" accept="image/*" class="hidden" />
   </AirButton>
 </template>
