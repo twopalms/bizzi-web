@@ -77,8 +77,11 @@ const profilePicture = computed(() => {
       class="flex justify-end items-center py-2 px-4 bg-[var(--cardColor)] h-36 min-h-36 max-h-36"
       :style="`--cardColor: ${card.color}`"
     >
-      <div class="overflow-hidden border-2 border-black/20 h-full aspect-square rounded-full">
-        <img v-if="profilePicture" :src="profilePicture" />
+      <div
+        v-if="profilePicture"
+        class="overflow-hidden border-2 border-black/20 h-full aspect-square rounded-full"
+      >
+        <img :src="profilePicture" />
       </div>
     </div>
 

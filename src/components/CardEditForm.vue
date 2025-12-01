@@ -250,16 +250,19 @@ function confirmCropper() {
   showCropper.value = false
 }
 
-function dataURLtoFile(dataurl, filename) {
-  var arr = dataurl.split(','),
-    mime = arr[0].match(/:(.*?);/)[1],
-    bstr = atob(arr[arr.length - 1]),
-    n = bstr.length,
-    u8arr = new Uint8Array(n)
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n)
+function dataURLtoFile(dataURL, filename) {
+  const [header, base64Data] = dataURL.split(',')
+  const mime = header.match(/:(.*?);/)[1]
+
+  const binary = atob(base64Data)
+  const length = binary.length
+  const bytes = new Uint8Array(length)
+
+  for (let i = 0; i < length; i++) {
+    bytes[i] = binary.charCodeAt(i)
   }
-  return new File([u8arr], filename, { type: mime })
+
+  return new File([bytes], filename, { type: mime })
 }
 </script>
 
@@ -269,7 +272,9 @@ function dataURLtoFile(dataurl, filename) {
       class="flex justify-between items-center h-18 bg-gray-200 px-4 sticky top-0 z-10 border-b border-gray-300"
     >
       <h3 v-if="!(showSaveSuccess || saveLoading)">Edit your card below</h3>
-      <LoadingSpinner v-else-if="saveLoading" text="" class="justify-center" />
+      <div v-else-if="saveLoading" class="flex flex-grow justify-center items-center">
+        <LoadingSpinner text="" />
+      </div>
       <span v-else-if="showSaveSuccess" class="font-semibold text-green-700">Card Saved!</span>
       <div class="flex gap-2">
         <AirButton @click="resetCard" :enabled="hasPendingChanges">
