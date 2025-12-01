@@ -94,9 +94,9 @@ const profilePicture = computed(() => {
       <div v-if="card.bio" class="italic border-l-2 border-gray-950/30 my-6 pl-4 py-2">
         {{ card.bio }}
       </div>
-      <div v-if="hasContactInfo">
+      <template v-if="hasContactInfo">
         <div
-          class="flex flex-col bg-[var(--cardColor)] h-0.5 my-4"
+          class="flex flex-col bg-[var(--cardColor)] h-[2px] my-4"
           :style="`--cardColor: ${card.color}`"
         />
 
@@ -121,12 +121,12 @@ const profilePicture = computed(() => {
             </a>
           </div>
         </BizziCardUnit>
-      </div>
+      </template>
 
       <!-- Links --->
-      <div v-if="card.links.length !== 0">
+      <template v-if="card.links.length !== 0">
         <div
-          class="flex flex-col bg-[var(--cardColor)] h-0.5 my-4"
+          class="flex flex-col bg-[var(--cardColor)] h-[2px] my-4"
           :style="`--cardColor: ${card.color}`"
         />
         <ol>
@@ -145,7 +145,7 @@ const profilePicture = computed(() => {
             </BizziCardUnit>
           </li>
         </ol>
-      </div>
+      </template>
     </div>
   </div>
 </template>

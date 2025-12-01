@@ -114,6 +114,8 @@ async function patchCard(data: object): Card {
   if (data.phone) {
     const parsed = parsePhoneNumber(data.phone, 'US').number
     data.phone = parsed
+  } else {
+    data.phone = null
   }
 
   // TODO: handle response codes
