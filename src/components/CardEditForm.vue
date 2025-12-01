@@ -11,6 +11,7 @@ import FileUpload from '../components/FileUpload.vue'
 import FocusModal from '../components/FocusModal.vue'
 import LinkForm from '../components/LinkForm.vue'
 import PublicToggle from '../components/PublicToggle.vue'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
 const { makeAuthenticatedRequest } = useAuth()
@@ -22,9 +23,11 @@ const mutableCard = defineModel('mutableCard', { default: {} })
 const hasPendingChanges = ref(false)
 const showDeleteConfirmation = ref(false)
 const showSaveSuccess = ref(false)
+const saveLoading = ref(false)
 const showCropper = ref(false)
 const cropperInput = ref(null)
 const cropperOutput = ref(null)
+const cropperCoords = ref(null)
 
 function isPhoneValid(value: string) {
   try {
@@ -72,14 +75,14 @@ function resetCard() {
   mutableCard.value = structuredClone(toRaw(referenceCard.value))
 }
 
-async function uploadProfilePicture(file: object) {
+async function uploadProfilePicture(file: object, mode: str) {
   const id = referenceCard.value.uuid
   const formData = new FormData()
 
   formData.append('file', file, file.name)
 
   try {
-    const response = await makeAuthenticatedRequest(`${API_BASE}/cards/${id}/picture/`, {
+    const response = await makeAuthenticatedRequest(`${API_BASE}/cards/${id}/${mode}/`, {
       method: 'PUT',
       body: formData,
     })
@@ -134,23 +137,37 @@ async function patchCard(data: object): Card {
 }
 
 async function saveCard() {
-  // If picture is an object, we know its a pending upload
-  if (!mutableCard.value.picture) {
-    if (referenceCard.value.picture) {
-      await deleteProfilePicture()
+  saveLoading.value = true
+
+  try {
+    // If picture is an object, we know its a pending upload
+    if (!mutableCard.value.picture) {
+      if (referenceCard.value.picture) {
+        await deleteProfilePicture()
+      }
+    } else if (typeof mutableCard.value.picture === 'object') {
+      await uploadProfilePicture(mutableCard.value.picture, 'picture')
     }
-  } else if (typeof mutableCard.value.picture === 'object') {
-    await uploadProfilePicture(mutableCard.value.picture)
+
+    if (!mutableCard.value.picture_cropped) {
+      if (referenceCard.value.picture_cropped) {
+        await deleteProfilePicture()
+      }
+    } else if (typeof mutableCard.value.picture_cropped === 'object') {
+      await uploadProfilePicture(mutableCard.value.picture_cropped, 'picture-cropped')
+    }
+
+    const newCard = await patchCard(mutableCard.value)
+    referenceCard.value = newCard
+
+    showSaveSuccess.value = true
+
+    setTimeout(() => {
+      showSaveSuccess.value = false
+    }, 1000)
+  } finally {
+    saveLoading.value = false
   }
-
-  const newCard = await patchCard(mutableCard.value)
-  referenceCard.value = newCard
-
-  showSaveSuccess.value = true
-
-  setTimeout(() => {
-    showSaveSuccess.value = false
-  }, 1000)
 }
 
 async function deleteCard() {
@@ -187,13 +204,50 @@ async function handleFileUploadChange(val) {
   // NOTE: instead of using a v-model to keep the card picture in sync,
   // we can use an emit from the file upload component. The file is read
   // async which causes some ref sync issues.
-  // mutableCard.value.picture = val
+  mutableCard.value.picture = val
   cropperInput.value = await toBase64(val)
   showCropper.value = true
 }
 
-function cropperChange({ canvas }) {
+function handleEditPicture() {
+  if (typeof mutableCard.value.picture === 'string') {
+    cropperInput.value = mutableCard.value.picture
+  } else if (typeof mutableCard.value.picture === 'object') {
+    cropperInput.value = URL.createObjectURL(mutableCard.value.picture)
+  }
+
+  showCropper.value = true
+}
+
+function getImageSize(url: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight })
+    img.onerror = reject
+    img.src = url
+  })
+}
+
+async function cropperChange({ coordinates, canvas }) {
+  const size = await getImageSize(cropperInput.value)
+
+  cropperCoords.value = {
+    originalWidth: size.width,
+    originalHeight: size.height,
+    width: coordinates.width,
+    height: coordinates.height,
+    top: coordinates.top,
+    left: coordinates.left,
+  }
+
   cropperOutput.value = canvas.toDataURL()
+}
+
+function confirmCropper() {
+  const croppedImage = dataURLtoFile(cropperOutput.value)
+  mutableCard.value.picture_cropped = croppedImage
+  mutableCard.value.picture_meta = cropperCoords.value
+  showCropper.value = false
 }
 
 function dataURLtoFile(dataurl, filename) {
@@ -207,13 +261,6 @@ function dataURLtoFile(dataurl, filename) {
   }
   return new File([u8arr], filename, { type: mime })
 }
-
-// TODO: store original version and cropped version separately
-function confirmCropper() {
-  const croppedImage = dataURLtoFile(cropperOutput.value)
-  mutableCard.value.picture = croppedImage
-  showCropper.value = false
-}
 </script>
 
 <template>
@@ -221,8 +268,9 @@ function confirmCropper() {
     <div
       class="flex justify-between items-center h-18 bg-gray-200 px-4 sticky top-0 z-10 border-b border-gray-300"
     >
-      <h3 v-if="!showSaveSuccess">Edit your card below</h3>
-      <span v-else class="font-semibold text-green-700">Card Saved!</span>
+      <h3 v-if="!(showSaveSuccess || saveLoading)">Edit your card below</h3>
+      <LoadingSpinner v-else-if="saveLoading" text="" class="justify-center" />
+      <span v-else-if="showSaveSuccess" class="font-semibold text-green-700">Card Saved!</span>
       <div class="flex gap-2">
         <AirButton @click="resetCard" :enabled="hasPendingChanges">
           <div class="flex items-center gap-3">
@@ -259,11 +307,20 @@ function confirmCropper() {
         <FormField label="Picture">
           <div class="flex flex-1 gap-3 items-center">
             <FileUpload @change="handleFileUploadChange" />
+            <AirButton @click="handleEditPicture" :enabled="Boolean(mutableCard.picture)">
+              <div class="flex gap-2 items-center justify-center">
+                <i class="pi pi-pen-to-square" />
+                <span>Edit</span>
+              </div>
+            </AirButton>
             <AirButton
               @click="() => (mutableCard.picture = null)"
               :enabled="Boolean(mutableCard.picture)"
             >
-              Clear
+              <div class="flex gap-2 items-center justify-center">
+                <i class="pi pi-trash" />
+                <span>Delete</span>
+              </div>
             </AirButton>
             <FocusModal v-model="showCropper">
               <div class="flex flex-col items-center justify-center gap-3">

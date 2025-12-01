@@ -57,10 +57,12 @@ function getFavicon(url: string) {
 const profilePicture = computed(() => {
   if (!props.card.picture) return
 
-  if (typeof props.card.picture === 'string') {
-    return props.card.picture
-  } else if (typeof props.card.picture === 'object') {
-    return URL.createObjectURL(props.card.picture)
+  const tgt = props.card?.picture_cropped ? props.card.picture_cropped : props.card.picture
+
+  if (typeof tgt === 'string') {
+    return tgt
+  } else if (typeof tgt === 'object') {
+    return URL.createObjectURL(tgt)
   } else {
     console.error('Bad profile picture object')
   }
@@ -71,21 +73,13 @@ const profilePicture = computed(() => {
 
 <template>
   <div class="flex flex-col rounded-lg bg-white border border-black">
-    <!-- <div -->
-    <!--   class="bg-[var(--cardColor)] flex items-center h-36 min-h-36 max-h-36 rounded-t-lg" -->
-    <!--   :style="`--cardColor: ${card.color}`" -->
-    <!-- > -->
-    <!--   <img v-if="profilePicture" :src="profilePicture" /> -->
-    <!-- </div> -->
     <div
-      class="relative bg-[var(--cardColor)] h-36 min-h-36 max-h-36 rounded-t-lg"
+      class="flex justify-end items-center py-2 px-4 bg-[var(--cardColor)] h-36 min-h-36 max-h-36"
       :style="`--cardColor: ${card.color}`"
     >
-      <img
-        v-if="profilePicture"
-        :src="profilePicture"
-        class="absolute right-0 top-0 h-full w-1/3 object-cover rounded-lg"
-      />
+      <div class="overflow-hidden border-2 border-black/20 h-full aspect-square rounded-full">
+        <img v-if="profilePicture" :src="profilePicture" />
+      </div>
     </div>
 
     <div class="p-6">
