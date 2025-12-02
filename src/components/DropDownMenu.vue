@@ -38,7 +38,7 @@ onClickOutside(target, () => (expanded.value = false))
     <div class="relative">
       <div
         v-if="expanded"
-        class="flex flex-col absolute top-3 bg-gray-100 border border-gray-200 w-[80%] justify-center"
+        class="flex flex-col absolute top-3 bg-gray-100 border border-gray-200 w-[80%] justify-center shadow-lg"
       >
         <div
           @click="handleSelect(i)"

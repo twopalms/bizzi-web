@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import NavList from './NavList.vue'
 
 const mainNav = [
-  { icon: 'pi-home', url: '/home', label: 'Home' },
+  // { icon: 'pi-home', url: '/home', label: 'Home' },
   { icon: 'pi-id-card', url: '/cards', label: 'Cards' },
   { icon: 'pi-phone', url: '/contacts', label: 'Contacts' },
   // { icon: 'pi-sparkles', url: '/directory', label: 'Directory' },

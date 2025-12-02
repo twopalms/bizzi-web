@@ -5,7 +5,7 @@ import SignupView from '../views/SignupView.vue'
 import LoginView from '../views/LoginView.vue'
 import AccountView from '../views/AccountView.vue'
 import PublicCardView from '../views/PublicCardView.vue'
-import HomeView from '../views/HomeView.vue'
+// import HomeView from '../views/HomeView.vue'
 import { useAuth } from '../composables/useAuth'
 
 const router = createRouter({
@@ -42,12 +42,12 @@ const router = createRouter({
       name: 'directory-detail',
       component: PublicCardView,
     },
-    {
-      path: '/home',
-      name: 'home',
-      component: HomeView,
-      meta: { requiresAuth: true },
-    },
+    // {
+    //   path: '/home',
+    //   name: 'home',
+    //   component: HomeView,
+    //   meta: { requiresAuth: true },
+    // },
     {
       path: '/account',
       name: 'account',

@@ -126,7 +126,7 @@ onMounted(async () => {
             />
           </div>
         </AirButton>
-        <span>{{ offset == 0 ? offset : offset + 1 }}-{{ pageEnd }} of {{ count }}</span>
+        <span>{{ offset == 0 ? offset + 1 : offset }}-{{ pageEnd }} of {{ count }}</span>
         <AirButton @click="pageLeft">{{ '<' }}</AirButton>
         <AirButton @click="pageRight">{{ '>' }}</AirButton>
       </div>
