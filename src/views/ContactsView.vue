@@ -4,7 +4,8 @@ import { useAuth } from '../composables/useAuth.ts'
 import { useDateFormat } from '@vueuse/core'
 import DataTable from '../components/DataTable.vue'
 
-// TODO: handle empty table
+// TODO: handle empty table - fetch cards in this view and pass to data table so
+// we know if we have data or not
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
 

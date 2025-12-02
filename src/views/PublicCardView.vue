@@ -11,9 +11,7 @@ import ShareCardForm from '../components/ShareCardForm.vue'
 import FocusModal from '../components/FocusModal.vue'
 
 // TODO: if the card owner has a paid account, remove branding
-// TODO: add color to the card options - color ref is placeholder
 // TODO: make contact CTA configurable
-// TODO: make focus modal scrollable
 // TODO: if active user has a bizzi account, allow option to share with one click
 const API_BASE = import.meta.env.VITE_API_BASE_URL
 
@@ -88,7 +86,7 @@ onMounted(async () => {
   <div
     v-if="!loading"
     class="flex flex-col flex-grow items-center min-h-screen pb-12"
-    :style="`background-color: ${color}20`"
+    :style="`background-color: ${card.color}20`"
   >
     <header
       class="w-full sticky top-0 bg-blue-300 border-b text-center text-gray-700 text-sm py-2 z-10"
