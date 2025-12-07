@@ -122,5 +122,6 @@ export function useAuth() {
     logout,
     checkAuth,
     makeAuthenticatedRequest,
+    getCsrfToken,
   }
 }

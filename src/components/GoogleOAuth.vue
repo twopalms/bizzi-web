@@ -1,9 +1,19 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useScriptTag } from '@vueuse/core'
+import { useAuth } from '../composables/useAuth.ts'
+
 const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 const GOOGLE_OAUTH_LOGIN_URI = import.meta.env.VITE_GOOGLE_OAUTH_LOGIN_URI
+const { getCsrfToken, fetchCsrfToken } = useAuth()
 
 useScriptTag('https://accounts.google.com/gsi/client', { async: false })
+
+onMounted(async () => {
+  if (!getCsrfToken()) {
+    await fetchCsrfToken()
+  }
+})
 </script>
 
 <template>
