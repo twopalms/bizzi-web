@@ -1,22 +1,10 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-// import { useScriptTag } from '@vueuse/core'
-// import { gsi } from '../scripts/gsi-client.js'
+import { useScriptTag } from '@vueuse/core'
 const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 const GOOGLE_OAUTH_LOGIN_URI = import.meta.env.VITE_GOOGLE_OAUTH_LOGIN_URI
 
 // useScriptTag('https://accounts.google.com/gsi/client', { async: false })
-
-onMounted(() => {
-  const script = document.createElement('script')
-  script.src = 'src/scripts/gsi-client.js' // Path relative to public folder
-  script.async = true
-  script.onload = () => {
-    // Script loaded, perform actions that depend on it
-    console.log('myDynamicScript.js loaded!')
-  }
-  document.head.appendChild(script)
-})
+useScriptTag('src/scripts/gsi-client.js', { async: false })
 </script>
 
 <template>
