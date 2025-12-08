@@ -1,10 +1,22 @@
 <script setup lang="ts">
-import { useScriptTag } from '@vueuse/core'
+import { onMounted } from 'vue'
+// import { useScriptTag } from '@vueuse/core'
+// import { gsi } from '../scripts/gsi-client.js'
 const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 const GOOGLE_OAUTH_LOGIN_URI = import.meta.env.VITE_GOOGLE_OAUTH_LOGIN_URI
-const GOOGLE_OAUTH_STATE_COOKIE_DOMAIN = import.meta.env.VITE_GOOGLE_OAUTH_STATE_COOKIE_DOMAIN
 
-useScriptTag('https://accounts.google.com/gsi/client', { async: false })
+// useScriptTag('https://accounts.google.com/gsi/client', { async: false })
+
+onMounted(() => {
+  const script = document.createElement('script')
+  script.src = 'src/scripts/gsi-client.js' // Path relative to public folder
+  script.async = true
+  script.onload = () => {
+    // Script loaded, perform actions that depend on it
+    console.log('myDynamicScript.js loaded!')
+  }
+  document.head.appendChild(script)
+})
 </script>
 
 <template>
@@ -14,7 +26,6 @@ useScriptTag('https://accounts.google.com/gsi/client', { async: false })
       :data-client_id="GOOGLE_OAUTH_CLIENT_ID"
       :data-login_uri="GOOGLE_OAUTH_LOGIN_URI"
       :data-auto_select="true"
-      :data-state_cookie_domain="GOOGLE_OAUTH_STATE_COOKIE_DOMAIN"
     />
     <div
       class="g_id_signin w-full"
