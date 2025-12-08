@@ -1,19 +1,10 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { useScriptTag } from '@vueuse/core'
-import { useAuth } from '../composables/useAuth.ts'
-
 const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 const GOOGLE_OAUTH_LOGIN_URI = import.meta.env.VITE_GOOGLE_OAUTH_LOGIN_URI
-const { getCsrfToken, fetchCsrfToken } = useAuth()
+const GOOGLE_OAUTH_STATE_COOKIE_DOMAIN = import.meta.env.VITE_GOOGLE_OAUTH_STATE_COOKIE_DOMAIN
 
 useScriptTag('https://accounts.google.com/gsi/client', { async: false })
-
-onMounted(async () => {
-  if (!getCsrfToken()) {
-    await fetchCsrfToken()
-  }
-})
 </script>
 
 <template>
@@ -23,6 +14,7 @@ onMounted(async () => {
       :data-client_id="GOOGLE_OAUTH_CLIENT_ID"
       :data-login_uri="GOOGLE_OAUTH_LOGIN_URI"
       :data-auto_select="true"
+      :data-state_cookie_domain="GOOGLE_OAUTH_STATE_COOKIE_DOMAIN"
     />
     <div
       class="g_id_signin w-full"
