@@ -3,8 +3,7 @@ import { useScriptTag } from '@vueuse/core'
 const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 const GOOGLE_OAUTH_LOGIN_URI = import.meta.env.VITE_GOOGLE_OAUTH_LOGIN_URI
 
-// useScriptTag('https://accounts.google.com/gsi/client', { async: false })
-useScriptTag('src/scripts/gsi-client.js', { async: false })
+useScriptTag('https://accounts.google.com/gsi/client', { async: false })
 </script>
 
 <template>
